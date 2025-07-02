@@ -1,0 +1,317 @@
+/* リセットとベースの設定 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Noto Sans JP', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+/* コンテナレイアウト */
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* サイドバーのスタイル */
+.sidebar {
+    width: 300px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+
+.sidebar-header {
+    padding: 2rem 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-header p {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+/* ナビゲーションメニュー */
+.nav-menu {
+    list-style: none;
+    padding: 1rem 0;
+}
+
+.nav-menu li {
+    margin: 0.2rem 0;
+}
+
+.nav-link {
+    display: block;
+    color: white;
+    text-decoration: none;
+    padding: 0.8rem 1.5rem;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    font-size: 0.95rem;
+}
+
+.nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-left-color: #ffd54f;
+    transform: translateX(5px);
+}
+
+.nav-link.active {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-left-color: #ffd54f;
+    font-weight: 500;
+}
+
+/* メインコンテンツ */
+.main-content {
+    flex: 1;
+    margin-left: 300px;
+    padding: 2rem 3rem;
+    background-color: white;
+    min-height: 100vh;
+}
+
+/* コンテンツセクション */
+.content-section {
+    margin-bottom: 3rem;
+    scroll-margin-top: 2rem;
+}
+
+.content-section h2 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid #667eea;
+    position: relative;
+}
+
+.content-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 0;
+    width: 50px;
+    height: 3px;
+    background: #ffd54f;
+}
+
+.content-section h3 {
+    color: #34495e;
+    font-size: 1.4rem;
+    margin: 2rem 0 1rem;
+    font-weight: 600;
+}
+
+.content-section h4 {
+    color: #5a6c7d;
+    font-size: 1.1rem;
+    margin: 1.5rem 0 0.8rem;
+    font-weight: 500;
+}
+
+.content-section p {
+    margin-bottom: 1rem;
+    font-size: 1.05rem;
+    color: #555;
+}
+
+.content-section ul, .content-section ol {
+    margin: 1rem 0 1rem 2rem;
+}
+
+.content-section li {
+    margin-bottom: 0.5rem;
+    color: #555;
+}
+
+/* コードブロックのスタイル */
+.code-block {
+    margin: 1.5rem 0;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.code-block h4 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 0.8rem 1rem;
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.code-block pre {
+    margin: 0;
+    padding: 1.5rem;
+    background: #2d3748;
+    color: #e2e8f0;
+    overflow-x: auto;
+    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.code-block code {
+    font-family: inherit;
+}
+
+/* スクロールバーのカスタマイズ */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* レスポンシブデザイン */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        position: relative;
+        height: auto;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1.5rem;
+    }
+    
+    .container {
+        flex-direction: column;
+    }
+    
+    .nav-menu {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 1rem;
+        gap: 0.5rem;
+    }
+    
+    .nav-menu li {
+        margin: 0;
+    }
+    
+    .nav-link {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        border-left: none;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
+    
+    .nav-link:hover {
+        transform: none;
+    }
+}
+
+/* ホバーエフェクトとアニメーション */
+.content-section {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 強調表示のスタイル */
+.highlight {
+    background: linear-gradient(120deg, #a8edea 0%, #fed6e3 100%);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+    margin: 1.5rem 0;
+}
+
+/* ボタンスタイル */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+/* テーブルスタイル */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    background: white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+}
+
+th {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    font-weight: 500;
+}
+
+tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* プリント用のスタイル */
+@media print {
+    .sidebar {
+        display: none;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 1rem;
+    }
+}
