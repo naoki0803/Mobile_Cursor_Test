@@ -4,1292 +4,222 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>.NET 学習サイト - ECサイト構築で学ぶ</title>
-    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="assets/css/main.css">
 </head>
 <body>
-    <div class="container">
-        <!-- サイドバー -->
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <h1>.NET 学習サイト</h1>
-                <p>ECサイト構築で学ぶ</p>
-            </div>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#introduction">
+                <i class="bi bi-code-square me-2"></i>.NET 学習サイト
+            </a>
             
-            <ul class="nav-menu">
-                <li><a href="#introduction" class="nav-link active">1. はじめに</a></li>
-                <li><a href="#dotnet-basics" class="nav-link">2. .NET基礎</a></li>
-                <li><a href="#csharp-basics" class="nav-link">3. C#基本文法</a></li>
-                <li><a href="#aspnet-core" class="nav-link">4. ASP.NET Core</a></li>
-                <li><a href="#mvc-pattern" class="nav-link">5. MVCパターン</a></li>
-                <li><a href="#entity-framework" class="nav-link">6. Entity Framework</a></li>
-                <li><a href="#database" class="nav-link">7. データベース設計</a></li>
-                <li><a href="#authentication" class="nav-link">8. 認証・認可</a></li>
-                <li><a href="#ecommerce-project" class="nav-link">9. ECサイト構築</a></li>
-                <li><a href="#deployment" class="nav-link">10. デプロイメント</a></li>
-                <li><a href="#advanced-topics" class="nav-link">11. 応用トピック</a></li>
-            </ul>
-        </nav>
-
-        <!-- メインコンテンツ -->
-        <main class="main-content">
-            <div class="content-section" id="introduction">
-                <h2>1. はじめに</h2>
-                <p>このサイトでは、.NETとC#を使用してECサイトを構築しながら、体系的にWebアプリケーション開発を学習できます。</p>
-                
-                <h3>学習目標</h3>
-                <ul>
-                    <li>.NET Frameworkと.NET Coreの基本概念を理解する</li>
-                    <li>C#の基本文法をマスターする</li>
-                    <li>ASP.NET CoreでMVCアプリケーションを構築する</li>
-                    <li>Entity Frameworkを使用したデータベース操作</li>
-                    <li>実践的なECサイトの構築</li>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#introduction" data-page="introduction">
+                            <i class="bi bi-house-door me-1"></i>はじめに
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-book me-1"></i>基礎知識
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#dotnet-basics" data-page="dotnet-basics">.NET基礎</a></li>
+                            <li><a class="dropdown-item" href="#csharp-basics" data-page="csharp-basics">C#基本文法</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-globe me-1"></i>Web開発
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#aspnet-core" data-page="aspnet-core">ASP.NET Core</a></li>
+                            <li><a class="dropdown-item" href="#mvc-pattern" data-page="mvc-pattern">MVCパターン</a></li>
+                            <li><a class="dropdown-item" href="#entity-framework" data-page="entity-framework">Entity Framework</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-shield-check me-1"></i>実践開発
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#database" data-page="database">データベース設計</a></li>
+                            <li><a class="dropdown-item" href="#authentication" data-page="authentication">認証・認可</a></li>
+                            <li><a class="dropdown-item" href="#ecommerce-project" data-page="ecommerce-project">ECサイト構築</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-cloud-upload me-1"></i>運用・応用
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#deployment" data-page="deployment">デプロイメント</a></li>
+                            <li><a class="dropdown-item" href="#advanced-topics" data-page="advanced-topics">応用トピック</a></li>
+                        </ul>
+                    </li>
                 </ul>
-
-                <h3>前提知識</h3>
-                <ul>
-                    <li>基本的なプログラミング概念</li>
-                    <li>HTML/CSSの基礎知識</li>
-                    <li>データベースの基本概念</li>
-                </ul>
-            </div>
-
-            <div class="content-section" id="dotnet-basics">
-                <h2>2. .NET基礎</h2>
                 
-                <h3>.NETとは</h3>
-                <p>.NETは、Microsoftが開発したオープンソースの開発プラットフォームです。C#、VB.NET、F#などの言語で開発できます。</p>
-                
-                <h3>.NET Frameworkと.NET Core/.NET 5+の違い</h3>
-                <div class="code-block">
-                    <h4>従来の.NET Framework</h4>
-                    <pre><code>// Windows専用
-// フルフレームワーク
-// 長い歴史とエコシステム</code></pre>
-                </div>
-                
-                <div class="code-block">
-                    <h4>現代の.NET Core/.NET 5+</h4>
-                    <pre><code>// クロスプラットフォーム対応
-// 軽量・高速
-// オープンソース
-// 最新の開発手法に対応</code></pre>
-                </div>
-
-                <h3>開発環境のセットアップ</h3>
-                <ol>
-                    <li>Visual Studio または Visual Studio Code をインストール</li>
-                    <li>.NET SDK をダウンロード・インストール</li>
-                    <li>プロジェクトテンプレートの確認</li>
-                </ol>
-            </div>
-
-            <div class="content-section" id="csharp-basics">
-                <h2>3. C#基本文法</h2>
-                
-                <h3>基本的な変数と型</h3>
-                <div class="code-block">
-                    <pre><code>// 基本的な型
-int productId = 1;
-string productName = "ノートパソコン";
-decimal price = 89800.00M;
-bool isAvailable = true;
-DateTime createdDate = DateTime.Now;</code></pre>
-                </div>
-
-                <h3>クラスとオブジェクト（ECサイトの商品例）</h3>
-                <div class="code-block">
-                    <pre><code>public class Product
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public decimal Price { get; set; }
-    public string Description { get; set; }
-    public int Stock { get; set; }
-    public DateTime CreatedDate { get; set; }
-    
-    public Product(string name, decimal price)
-    {
-        Name = name;
-        Price = price;
-        CreatedDate = DateTime.Now;
-    }
-    
-    public bool IsInStock()
-    {
-        return Stock > 0;
-    }
-}</code></pre>
-                </div>
-
-                <h3>継承の例（商品カテゴリ）</h3>
-                <div class="code-block">
-                    <pre><code>public class ElectronicsProduct : Product
-{
-    public string Brand { get; set; }
-    public int WarrantyMonths { get; set; }
-    
-    public ElectronicsProduct(string name, decimal price, string brand) 
-        : base(name, price)
-    {
-        Brand = brand;
-        WarrantyMonths = 12; // デフォルト1年保証
-    }
-}</code></pre>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light btn-sm me-2" id="themeToggle">
+                        <i class="bi bi-moon-fill"></i>
+                    </button>
+                    <div class="progress-indicator">
+                        <span class="badge bg-light text-dark">進捗: <span id="progressPercent">0</span>%</span>
+                    </div>
                 </div>
             </div>
+        </div>
+    </nav>
 
-            <div class="content-section" id="aspnet-core">
-                <h2>4. ASP.NET Core</h2>
-                
-                <h3>ASP.NET Coreの特徴</h3>
-                <ul>
-                    <li>クロスプラットフォーム対応</li>
-                    <li>高いパフォーマンス</li>
-                    <li>内蔵のDI（依存性注入）</li>
-                    <li>統合されたログ機能</li>
-                </ul>
-
-                <h3>プロジェクトの作成</h3>
-                <div class="code-block">
-                    <pre><code># コマンドラインでプロジェクト作成
-dotnet new web -n ECommerceApp
-cd ECommerceApp
-dotnet run</code></pre>
-                </div>
-
-                <h3>Startup.cs（Program.cs）の設定</h3>
-                <div class="code-block">
-                    <pre><code>var builder = WebApplication.CreateBuilder(args);
-
-// サービスの追加
-builder.Services.AddControllersWithViews();
-
-var app = builder.Build();
-
-// ミドルウェアの設定
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();</code></pre>
-                </div>
-            </div>
-
-            <div class="content-section" id="mvc-pattern">
-                <h2>5. MVCパターン</h2>
-                
-                <h3>MVCアーキテクチャとは</h3>
-                <p>Model-View-Controllerパターンは、アプリケーションを3つの役割に分離する設計パターンです。</p>
-                
-                <ul>
-                    <li><strong>Model:</strong> データとビジネスロジック</li>
-                    <li><strong>View:</strong> ユーザーインターフェース</li>
-                    <li><strong>Controller:</strong> ユーザー入力とModel・Viewの制御</li>
-                </ul>
-
-                <h3>Controllerの実装（商品管理）</h3>
-                <div class="code-block">
-                    <h4>ProductController.cs</h4>
-                    <pre><code>public class ProductController : Controller
-{
-    private readonly IProductService _productService;
-    
-    public ProductController(IProductService productService)
-    {
-        _productService = productService;
-    }
-    
-    // 商品一覧表示
-    public async Task&lt;IActionResult&gt; Index()
-    {
-        var products = await _productService.GetAllProductsAsync();
-        return View(products);
-    }
-    
-    // 商品詳細表示
-    public async Task&lt;IActionResult&gt; Details(int id)
-    {
-        var product = await _productService.GetProductByIdAsync(id);
-        if (product == null)
-        {
-            return NotFound();
-        }
-        return View(product);
-    }
-    
-    // 商品作成画面表示
-    public IActionResult Create()
-    {
-        return View();
-    }
-    
-    // 商品作成処理
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task&lt;IActionResult&gt; Create(ProductCreateModel model)
-    {
-        if (ModelState.IsValid)
-        {
-            await _productService.CreateProductAsync(model);
-            return RedirectToAction(nameof(Index));
-        }
-        return View(model);
-    }
-}</code></pre>
-                </div>
-
-                <h3>Modelの実装（商品モデル）</h3>
-                <div class="code-block">
-                    <h4>ProductModel.cs</h4>
-                    <pre><code>public class ProductModel
-{
-    public int Id { get; set; }
-    
-    [Required(ErrorMessage = "商品名は必須です")]
-    [StringLength(100, ErrorMessage = "商品名は100文字以内で入力してください")]
-    public string Name { get; set; }
-    
-    [Required(ErrorMessage = "価格は必須です")]
-    [Range(0, 999999, ErrorMessage = "価格は0以上で入力してください")]
-    public decimal Price { get; set; }
-    
-    [StringLength(500, ErrorMessage = "説明は500文字以内で入力してください")]
-    public string Description { get; set; }
-    
-    public int CategoryId { get; set; }
-    public string CategoryName { get; set; }
-    
-    public int Stock { get; set; }
-    public string ImageUrl { get; set; }
-    public DateTime CreatedDate { get; set; }
-}</code></pre>
-                </div>
-
-                <h3>Viewの実装（商品一覧）</h3>
-                <div class="code-block">
-                    <h4>Views/Product/Index.cshtml</h4>
-                    <pre><code>@model IEnumerable&lt;ProductModel&gt;
-
-@{
-    ViewData["Title"] = "商品一覧";
-}
-
-&lt;div class="container"&gt;
-    &lt;div class="row"&gt;
-        &lt;div class="col-12"&gt;
-            &lt;h2&gt;商品一覧&lt;/h2&gt;
-            &lt;a asp-action="Create" class="btn btn-primary mb-3"&gt;新規登録&lt;/a&gt;
-        &lt;/div&gt;
-    &lt;/div&gt;
-    
-    &lt;div class="row"&gt;
-        @foreach (var product in Model)
-        {
-            &lt;div class="col-md-4 mb-4"&gt;
-                &lt;div class="card"&gt;
-                    &lt;img src="@product.ImageUrl" class="card-img-top" alt="@product.Name"&gt;
-                    &lt;div class="card-body"&gt;
-                        &lt;h5 class="card-title"&gt;@product.Name&lt;/h5&gt;
-                        &lt;p class="card-text"&gt;@product.Description&lt;/p&gt;
-                        &lt;p class="card-text"&gt;&lt;strong&gt;¥@product.Price.ToString("N0")&lt;/strong&gt;&lt;/p&gt;
-                        &lt;a asp-action="Details" asp-route-id="@product.Id" class="btn btn-info"&gt;詳細&lt;/a&gt;
-                    &lt;/div&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-        }
-    &lt;/div&gt;
-&lt;/div&gt;</code></pre>
-                </div>
-            </div>
-
-            <div class="content-section" id="entity-framework">
-                <h2>6. Entity Framework</h2>
-                
-                <h3>Entity Frameworkとは</h3>
-                <p>Entity Framework (EF) Coreは、.NET用のオブジェクトリレーショナルマッピング（ORM）フレームワークです。</p>
-                
-                <h3>DbContextの設定</h3>
-                <div class="code-block">
-                    <h4>ECommerceDbContext.cs</h4>
-                    <pre><code>public class ECommerceDbContext : DbContext
-{
-    public ECommerceDbContext(DbContextOptions&lt;ECommerceDbContext&gt; options)
-        : base(options)
-    {
-    }
-    
-    public DbSet&lt;Product&gt; Products { get; set; }
-    public DbSet&lt;Category&gt; Categories { get; set; }
-    public DbSet&lt;Customer&gt; Customers { get; set; }
-    public DbSet&lt;Order&gt; Orders { get; set; }
-    public DbSet&lt;OrderItem&gt; OrderItems { get; set; }
-    
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        // Product設定
-        modelBuilder.Entity&lt;Product&gt;(entity =&gt;
-        {
-            entity.HasKey(e =&gt; e.Id);
-            entity.Property(e =&gt; e.Name).IsRequired().HasMaxLength(100);
-            entity.Property(e =&gt; e.Price).HasColumnType("decimal(18,2)");
-            entity.HasOne(p =&gt; p.Category)
-                  .WithMany(c =&gt; c.Products)
-                  .HasForeignKey(p =&gt; p.CategoryId);
-        });
-        
-        // Category設定
-        modelBuilder.Entity&lt;Category&gt;(entity =&gt;
-        {
-            entity.HasKey(e =&gt; e.Id);
-            entity.Property(e =&gt; e.Name).IsRequired().HasMaxLength(50);
-        });
-        
-        // Order設定
-        modelBuilder.Entity&lt;Order&gt;(entity =&gt;
-        {
-            entity.HasKey(e =&gt; e.Id);
-            entity.Property(e =&gt; e.TotalAmount).HasColumnType("decimal(18,2)");
-            entity.HasOne(o =&gt; o.Customer)
-                  .WithMany(c =&gt; c.Orders)
-                  .HasForeignKey(o =&gt; o.CustomerId);
-        });
-        
-        // OrderItem設定
-        modelBuilder.Entity&lt;OrderItem&gt;(entity =&gt;
-        {
-            entity.HasKey(e =&gt; e.Id);
-            entity.Property(e =&gt; e.UnitPrice).HasColumnType("decimal(18,2)");
-            entity.HasOne(oi =&gt; oi.Order)
-                  .WithMany(o =&gt; o.OrderItems)
-                  .HasForeignKey(oi =&gt; oi.OrderId);
-            entity.HasOne(oi =&gt; oi.Product)
-                  .WithMany()
-                  .HasForeignKey(oi =&gt; oi.ProductId);
-        });
-    }
-}</code></pre>
-                </div>
-
-                <h3>エンティティクラスの定義</h3>
-                <div class="code-block">
-                    <h4>Product.cs</h4>
-                    <pre><code>public class Product
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public decimal Price { get; set; }
-    public string Description { get; set; }
-    public int Stock { get; set; }
-    public string ImageUrl { get; set; }
-    public DateTime CreatedDate { get; set; }
-    
-    public int CategoryId { get; set; }
-    public Category Category { get; set; }
-}
-
-public class Category
-{
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
-    
-    public ICollection&lt;Product&gt; Products { get; set; }
-}
-
-public class Customer
-{
-    public int Id { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string Phone { get; set; }
-    public string Address { get; set; }
-    public DateTime CreatedDate { get; set; }
-    
-    public ICollection&lt;Order&gt; Orders { get; set; }
-}
-
-public class Order
-{
-    public int Id { get; set; }
-    public DateTime OrderDate { get; set; }
-    public decimal TotalAmount { get; set; }
-    public string Status { get; set; }
-    
-    public int CustomerId { get; set; }
-    public Customer Customer { get; set; }
-    
-    public ICollection&lt;OrderItem&gt; OrderItems { get; set; }
-}
-
-public class OrderItem
-{
-    public int Id { get; set; }
-    public int Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    
-    public int OrderId { get; set; }
-    public Order Order { get; set; }
-    
-    public int ProductId { get; set; }
-    public Product Product { get; set; }
-}</code></pre>
-                </div>
-            </div>
-
-            <div class="content-section" id="database">
-                <h2>7. データベース設計</h2>
-                
-                <h3>ECサイトのデータベース設計</h3>
-                <p>ECサイトに必要な主要なテーブル構造を設計します。</p>
-                
-                <h3>マイグレーションの作成と実行</h3>
-                <div class="code-block">
-                    <pre><code># マイグレーションファイルの作成
-dotnet ef migrations add InitialCreate
-
-# データベースの更新
-dotnet ef database update
-
-# 特定のマイグレーションまで戻す
-dotnet ef database update [MigrationName]</code></pre>
-                </div>
-
-                <h3>Seedデータの投入</h3>
-                <div class="code-block">
-                    <h4>DbInitializer.cs</h4>
-                    <pre><code>public static class DbInitializer
-{
-    public static void Initialize(ECommerceDbContext context)
-    {
-        // データベースの作成
-        context.Database.EnsureCreated();
-        
-        // カテゴリデータが既に存在する場合は何もしない
-        if (context.Categories.Any())
-        {
-            return;
-        }
-        
-        // カテゴリのサンプルデータ
-        var categories = new Category[]
-        {
-            new Category { Name = "ノートパソコン", Description = "携帯性に優れたパソコン" },
-            new Category { Name = "デスクトップPC", Description = "高性能なデスクトップパソコン" },
-            new Category { Name = "スマートフォン", Description = "最新のスマートフォン" },
-            new Category { Name = "タブレット", Description = "軽量で便利なタブレット" }
-        };
-        
-        context.Categories.AddRange(categories);
-        context.SaveChanges();
-        
-        // 商品のサンプルデータ
-        var products = new Product[]
-        {
-            new Product
-            {
-                Name = "MacBook Pro 14インチ",
-                Price = 298000,
-                Description = "M2チップ搭載の高性能ノートパソコン",
-                Stock = 10,
-                CategoryId = 1,
-                CreatedDate = DateTime.Now
-            },
-            new Product
-            {
-                Name = "Dell XPS 13",
-                Price = 189000,
-                Description = "軽量で長時間バッテリーのノートパソコン",
-                Stock = 15,
-                CategoryId = 1,
-                CreatedDate = DateTime.Now
-            },
-            new Product
-            {
-                Name = "iPhone 15 Pro",
-                Price = 159800,
-                Description = "最新のiPhone Pro モデル",
-                Stock = 25,
-                CategoryId = 3,
-                CreatedDate = DateTime.Now
-            }
-        };
-        
-        context.Products.AddRange(products);
-        context.SaveChanges();
-    }
-}</code></pre>
-                </div>
-            </div>
-
-            <div class="content-section" id="authentication">
-                <h2>8. 認証・認可</h2>
-                
-                <h3>ASP.NET Core Identityの導入</h3>
-                <p>ユーザー認証機能を実装するために、ASP.NET Core Identityを使用します。</p>
-                
-                <h3>Identity の設定</h3>
-                <div class="code-block">
-                    <h4>Program.cs での設定</h4>
-                    <pre><code>var builder = WebApplication.CreateBuilder(args);
-
-// データベース接続の設定
-builder.Services.AddDbContext&lt;ApplicationDbContext&gt;(options =&gt;
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Identity の設定
-builder.Services.AddDefaultIdentity&lt;IdentityUser&gt;(options =&gt; 
-{
-    // パスワードの設定
-    options.SignIn.RequireConfirmedAccount = false;
-    options.Password.RequireDigit = true;
-    options.Password.RequireLowercase = true;
-    options.Password.RequireUppercase = true;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequiredLength = 6;
-})
-.AddEntityFrameworkStores&lt;ApplicationDbContext&gt;();
-
-builder.Services.AddControllersWithViews();
-
-var app = builder.Build();
-
-// ミドルウェアの設定
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
-}
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
-
-app.UseAuthentication(); // 認証
-app.UseAuthorization();  // 認可
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.MapRazorPages(); // Identity のページ
-
-app.Run();</code></pre>
-                </div>
-
-                <h3>カスタムユーザークラス</h3>
-                <div class="code-block">
-                    <h4>ApplicationUser.cs</h4>
-                    <pre><code>public class ApplicationUser : IdentityUser
-{
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public DateTime DateOfBirth { get; set; }
-    public string Address { get; set; }
-    public DateTime CreatedDate { get; set; }
-    
-    // ナビゲーションプロパティ
-    public ICollection&lt;Order&gt; Orders { get; set; }
-}</code></pre>
-                </div>
-
-                <h3>認可属性の使用</h3>
-                <div class="code-block">
-                    <h4>管理者権限が必要なアクション</h4>
-                    <pre><code>[Authorize(Roles = "Admin")]
-public class AdminController : Controller
-{
-    public IActionResult Dashboard()
-    {
-        return View();
-    }
-    
-    [Authorize(Roles = "Admin")]
-    public async Task&lt;IActionResult&gt; DeleteProduct(int id)
-    {
-        // 商品削除処理
-        return RedirectToAction("Index", "Product");
-    }
-}
-
-// ログインが必要なアクション
-[Authorize]
-public class OrderController : Controller
-{
-    public async Task&lt;IActionResult&gt; MyOrders()
-    {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        // ユーザーの注文履歴を取得
-        return View();
-                         }
-                 }</code></pre>
-                </div>
-            </div>
-
-            <div class="content-section" id="ecommerce-project">
-                <h2>9. ECサイト構築</h2>
-                
-                <h3>ショッピングカート機能</h3>
-                <p>実際のECサイトで必要なショッピングカート機能を実装します。</p>
-                
-                <div class="code-block">
-                    <h4>ShoppingCartService.cs</h4>
-                    <pre><code>public interface IShoppingCartService
-{
-    Task AddToCartAsync(string userId, int productId, int quantity);
-    Task RemoveFromCartAsync(string userId, int productId);
-    Task UpdateQuantityAsync(string userId, int productId, int quantity);
-    Task&lt;ShoppingCart&gt; GetCartAsync(string userId);
-    Task ClearCartAsync(string userId);
-}
-
-public class ShoppingCartService : IShoppingCartService
-{
-    private readonly ECommerceDbContext _context;
-    
-    public ShoppingCartService(ECommerceDbContext context)
-    {
-        _context = context;
-    }
-    
-    public async Task AddToCartAsync(string userId, int productId, int quantity)
-    {
-        var cartItem = await _context.CartItems
-            .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == productId);
-        
-        if (cartItem == null)
-        {
-            cartItem = new CartItem
-            {
-                UserId = userId,
-                ProductId = productId,
-                Quantity = quantity,
-                CreatedDate = DateTime.Now
-            };
-            _context.CartItems.Add(cartItem);
-        }
-        else
-        {
-            cartItem.Quantity += quantity;
-        }
-        
-        await _context.SaveChangesAsync();
-    }
-    
-    public async Task&lt;ShoppingCart&gt; GetCartAsync(string userId)
-    {
-        var cartItems = await _context.CartItems
-            .Include(c => c.Product)
-            .Where(c => c.UserId == userId)
-            .ToListAsync();
-        
-        return new ShoppingCart
-        {
-            Items = cartItems,
-            TotalAmount = cartItems.Sum(c => c.Product.Price * c.Quantity)
-        };
-    }
-}</code></pre>
-                </div>
-
-                <h3>注文処理システム</h3>
-                <div class="code-block">
-                    <h4>OrderService.cs</h4>
-                    <pre><code>public class OrderService : IOrderService
-{
-    private readonly ECommerceDbContext _context;
-    private readonly IShoppingCartService _cartService;
-    
-    public OrderService(ECommerceDbContext context, IShoppingCartService cartService)
-    {
-        _context = context;
-        _cartService = cartService;
-    }
-    
-    public async Task&lt;Order&gt; CreateOrderAsync(string userId, OrderCreateModel model)
-    {
-        var cart = await _cartService.GetCartAsync(userId);
-        
-        if (!cart.Items.Any())
-        {
-            throw new InvalidOperationException("カートが空です");
-        }
-        
-        var order = new Order
-        {
-            CustomerId = userId,
-            OrderDate = DateTime.Now,
-            Status = "Processing",
-            ShippingAddress = model.ShippingAddress,
-            TotalAmount = cart.TotalAmount,
-            OrderItems = cart.Items.Select(item => new OrderItem
-            {
-                ProductId = item.ProductId,
-                Quantity = item.Quantity,
-                UnitPrice = item.Product.Price
-            }).ToList()
-        };
-        
-        _context.Orders.Add(order);
-        
-        // 在庫の更新
-        foreach (var item in cart.Items)
-        {
-            var product = await _context.Products.FindAsync(item.ProductId);
-            if (product.Stock < item.Quantity)
-            {
-                throw new InvalidOperationException($"{product.Name}の在庫が不足しています");
-            }
-            product.Stock -= item.Quantity;
-        }
-        
-        // カートをクリア
-        await _cartService.ClearCartAsync(userId);
-        
-        await _context.SaveChangesAsync();
-        return order;
-    }
-}</code></pre>
-                </div>
-
-                <h3>決済処理の統合</h3>
-                <div class="code-block">
-                    <h4>PaymentController.cs</h4>
-                    <pre><code>public class PaymentController : Controller
-{
-    private readonly IOrderService _orderService;
-    private readonly IPaymentService _paymentService;
-    
-    public PaymentController(IOrderService orderService, IPaymentService paymentService)
-    {
-        _orderService = orderService;
-        _paymentService = paymentService;
-    }
-    
-    [HttpPost]
-    [Authorize]
-    public async Task&lt;IActionResult&gt; ProcessPayment(PaymentModel model)
-    {
-        try
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            
-            // 注文を作成
-            var order = await _orderService.CreateOrderAsync(userId, model.OrderInfo);
-            
-            // 決済処理
-            var paymentResult = await _paymentService.ProcessPaymentAsync(new PaymentRequest
-            {
-                Amount = order.TotalAmount,
-                Currency = "JPY",
-                CardToken = model.CardToken,
-                OrderId = order.Id.ToString()
-            });
-            
-            if (paymentResult.IsSuccess)
-            {
-                order.Status = "Paid";
-                await _orderService.UpdateOrderStatusAsync(order.Id, "Paid");
-                
-                return RedirectToAction("Confirmation", new { orderId = order.Id });
-            }
-            else
-            {
-                ModelState.AddModelError("", "決済処理に失敗しました: " + paymentResult.ErrorMessage);
-                return View(model);
-            }
-        }
-        catch (Exception ex)
-        {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
-        }
-    }
-}</code></pre>
-                </div>
-
-                <h3>検索機能の実装</h3>
-                <div class="code-block">
-                    <h4>ProductSearchService.cs</h4>
-                    <pre><code>public class ProductSearchService : IProductSearchService
-{
-    private readonly ECommerceDbContext _context;
-    
-    public ProductSearchService(ECommerceDbContext context)
-    {
-        _context = context;
-    }
-    
-    public async Task&lt;PagedResult&lt;Product&gt;&gt; SearchProductsAsync(ProductSearchQuery query)
-    {
-        var productsQuery = _context.Products
-            .Include(p => p.Category)
-            .AsQueryable();
-        
-        // キーワード検索
-        if (!string.IsNullOrEmpty(query.Keyword))
-        {
-            productsQuery = productsQuery.Where(p => 
-                p.Name.Contains(query.Keyword) || 
-                p.Description.Contains(query.Keyword));
-        }
-        
-        // カテゴリフィルタ
-        if (query.CategoryId.HasValue)
-        {
-            productsQuery = productsQuery.Where(p => p.CategoryId == query.CategoryId.Value);
-        }
-        
-        // 価格範囲フィルタ
-        if (query.MinPrice.HasValue)
-        {
-            productsQuery = productsQuery.Where(p => p.Price >= query.MinPrice.Value);
-        }
-        
-        if (query.MaxPrice.HasValue)
-        {
-            productsQuery = productsQuery.Where(p => p.Price <= query.MaxPrice.Value);
-        }
-        
-        // ソート
-        switch (query.SortBy)
-        {
-            case "price_asc":
-                productsQuery = productsQuery.OrderBy(p => p.Price);
-                break;
-            case "price_desc":
-                productsQuery = productsQuery.OrderByDescending(p => p.Price);
-                break;
-            case "name":
-                productsQuery = productsQuery.OrderBy(p => p.Name);
-                break;
-            default:
-                productsQuery = productsQuery.OrderByDescending(p => p.CreatedDate);
-                break;
-        }
-        
-        var totalCount = await productsQuery.CountAsync();
-        var products = await productsQuery
-            .Skip((query.Page - 1) * query.PageSize)
-            .Take(query.PageSize)
-            .ToListAsync();
-        
-        return new PagedResult&lt;Product&gt;
-        {
-            Items = products,
-            TotalCount = totalCount,
-            Page = query.Page,
-            PageSize = query.PageSize
-        };
-    }
-}</code></pre>
-                </div>
-            </div>
-
-            <div class="content-section" id="deployment">
-                <h2>10. デプロイメント</h2>
-                
-                <h3>Azure App Serviceへのデプロイ</h3>
-                <p>作成したECサイトをAzure App Serviceにデプロイする方法を説明します。</p>
-                
-                <h3>デプロイ設定ファイル</h3>
-                <div class="code-block">
-                    <h4>azure-pipelines.yml</h4>
-                    <pre><code>trigger:
-- main
-
-variables:
-  buildConfiguration: 'Release'
-  azureSubscription: 'your-azure-subscription'
-  webAppName: 'your-ecommerce-app'
-
-stages:
-- stage: Build
-  displayName: Build stage
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      vmImage: 'ubuntu-latest'
-    
-    steps:
-    - task: UseDotNet@2
-      displayName: 'Use .NET Core sdk'
-      inputs:
-        packageType: 'sdk'
-        version: '7.0.x'
-        
-    - task: DotNetCoreCLI@2
-      displayName: 'Restore packages'
-      inputs:
-        command: 'restore'
-        projects: '**/*.csproj'
-        
-    - task: DotNetCoreCLI@2
-      displayName: 'Build project'
-      inputs:
-        command: 'build'
-        projects: '**/*.csproj'
-        arguments: '--configuration $(buildConfiguration)'
-        
-    - task: DotNetCoreCLI@2
-      displayName: 'Run tests'
-      inputs:
-        command: 'test'
-        projects: '**/*Tests/*.csproj'
-        arguments: '--configuration $(buildConfiguration) --collect "Code coverage"'
-        
-    - task: DotNetCoreCLI@2
-      displayName: 'Publish'
-      inputs:
-        command: 'publish'
-        publishWebProjects: true
-        arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
-        
-    - task: PublishBuildArtifacts@1
-      displayName: 'Publish artifacts'
-      inputs:
-        PathtoPublish: '$(Build.ArtifactStagingDirectory)'
-        ArtifactName: 'drop'
-
-- stage: Deploy
-  displayName: Deploy stage
-  dependsOn: Build
-  condition: succeeded()
-  jobs:
-  - deployment: Deploy
-    displayName: Deploy
-    environment: 'production'
-    pool:
-      vmImage: 'ubuntu-latest'
-    strategy:
-      runOnce:
-        deploy:
-          steps:
-          - task: AzureWebApp@1
-            displayName: 'Azure Web App Deploy'
-            inputs:
-              azureSubscription: '$(azureSubscription)'
-              appType: 'webApp'
-              appName: '$(webAppName)'
-              package: '$(Pipeline.Workspace)/drop/**/*.zip'</code></pre>
-                </div>
-
-                <h3>Docker化</h3>
-                <div class="code-block">
-                    <h4>Dockerfile</h4>
-                    <pre><code># ASP.NET Core ランタイムを使用
-FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
-WORKDIR /app
-EXPOSE 80
-EXPOSE 443
-
-# SDKイメージを使用してビルド
-FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
-WORKDIR /src
-COPY ["ECommerceApp/ECommerceApp.csproj", "ECommerceApp/"]
-RUN dotnet restore "ECommerceApp/ECommerceApp.csproj"
-COPY . .
-WORKDIR "/src/ECommerceApp"
-RUN dotnet build "ECommerceApp.csproj" -c Release -o /app/build
-
-FROM build AS publish
-RUN dotnet publish "ECommerceApp.csproj" -c Release -o /app/publish
-
-FROM base AS final
-WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ECommerceApp.dll"]</code></pre>
-                </div>
-
-                <h3>環境設定ファイル</h3>
-                <div class="code-block">
-                    <h4>appsettings.Production.json</h4>
-                    <pre><code>{
-  "ConnectionStrings": {
-    "DefaultConnection": "Server=your-server.database.windows.net;Database=ECommerceDB;User Id=your-username;Password=your-password;Encrypt=True;TrustServerCertificate=False;"
-  },
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning"
-    }
-  },
-  "AllowedHosts": "*",
-  "PaymentSettings": {
-    "ApiKey": "your-payment-api-key",
-    "SecretKey": "your-payment-secret-key",
-    "Environment": "Production"
-  },
-  "EmailSettings": {
-    "SmtpServer": "smtp.sendgrid.net",
-    "Port": 587,
-    "Username": "apikey",
-    "Password": "your-sendgrid-api-key"
-  }
-}</code></pre>
-                </div>
-            </div>
-
-            <div class="content-section" id="advanced-topics">
-                <h2>11. 応用トピック</h2>
-                
-                <h3>キャッシュの実装</h3>
-                <p>パフォーマンス向上のためのキャッシュ戦略を実装します。</p>
-                
-                <div class="code-block">
-                    <h4>Redis Cache の実装</h4>
-                    <pre><code>public class CacheService : ICacheService
-{
-    private readonly IDistributedCache _cache;
-    private readonly ILogger&lt;CacheService&gt; _logger;
-    
-    public CacheService(IDistributedCache cache, ILogger&lt;CacheService&gt; logger)
-    {
-        _cache = cache;
-        _logger = logger;
-    }
-    
-    public async Task&lt;T&gt; GetAsync&lt;T&gt;(string key) where T : class
-    {
-        try
-        {
-            var cached = await _cache.GetStringAsync(key);
-            if (cached == null) return null;
-            
-            return JsonSerializer.Deserialize&lt;T&gt;(cached);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error getting cache for key: {Key}", key);
-            return null;
-        }
-    }
-    
-    public async Task SetAsync&lt;T&gt;(string key, T value, TimeSpan expiration) where T : class
-    {
-        try
-        {
-            var options = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = expiration
-            };
-            
-            var serialized = JsonSerializer.Serialize(value);
-            await _cache.SetStringAsync(key, serialized, options);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error setting cache for key: {Key}", key);
-        }
-    }
-}</code></pre>
-                </div>
-
-                <h3>API設計（Web API）</h3>
-                <div class="code-block">
-                    <h4>ProductApiController.cs</h4>
-                    <pre><code>[ApiController]
-[Route("api/[controller]")]
-public class ProductApiController : ControllerBase
-{
-    private readonly IProductService _productService;
-    private readonly ICacheService _cacheService;
-    
-    public ProductApiController(IProductService productService, ICacheService cacheService)
-    {
-        _productService = productService;
-        _cacheService = cacheService;
-    }
-    
-    /// &lt;summary&gt;
-    /// 商品一覧を取得します
-    /// &lt;/summary&gt;
-    /// &lt;param name="page"&gt;ページ番号&lt;/param&gt;
-    /// &lt;param name="pageSize"&gt;1ページあたりの件数&lt;/param&gt;
-    /// &lt;returns&gt;商品一覧&lt;/returns&gt;
-    [HttpGet]
-    public async Task&lt;ActionResult&lt;PagedResult&lt;ProductDto&gt;&gt;&gt; GetProducts(
-        [FromQuery] int page = 1, 
-        [FromQuery] int pageSize = 10)
-    {
-        var cacheKey = $"products_page_{page}_size_{pageSize}";
-        var cached = await _cacheService.GetAsync&lt;PagedResult&lt;ProductDto&gt;&gt;(cacheKey);
-        
-        if (cached != null)
-        {
-            return Ok(cached);
-        }
-        
-        var result = await _productService.GetProductsAsync(page, pageSize);
-        await _cacheService.SetAsync(cacheKey, result, TimeSpan.FromMinutes(5));
-        
-        return Ok(result);
-    }
-    
-    /// &lt;summary&gt;
-    /// 商品詳細を取得します
-    /// &lt;/summary&gt;
-    /// &lt;param name="id"&gt;商品ID&lt;/param&gt;
-    /// &lt;returns&gt;商品詳細&lt;/returns&gt;
-    [HttpGet("{id}")]
-    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; GetProduct(int id)
-    {
-        var product = await _productService.GetProductByIdAsync(id);
-        if (product == null)
-        {
-            return NotFound();
-        }
-        
-        return Ok(product);
-    }
-    
-    /// &lt;summary&gt;
-    /// 商品を作成します
-    /// &lt;/summary&gt;
-    /// &lt;param name="model"&gt;商品作成モデル&lt;/param&gt;
-    /// &lt;returns&gt;作成された商品&lt;/returns&gt;
-    [HttpPost]
-    [Authorize(Roles = "Admin")]
-    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; CreateProduct([FromBody] ProductCreateDto model)
-    {
-        if (!ModelState.IsValid)
-        {
-            return BadRequest(ModelState);
-        }
-        
-        var product = await _productService.CreateProductAsync(model);
-        return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
-    }
-}</code></pre>
-                </div>
-
-                <h3>ログとモニタリング</h3>
-                <div class="code-block">
-                    <h4>Application Insights の設定</h4>
-                    <pre><code>public class Startup
-{
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // Application Insights の追加
-        services.AddApplicationInsightsTelemetry();
-        
-        // カスタムテレメトリの追加
-        services.AddSingleton&lt;ITelemetryInitializer, CustomTelemetryInitializer&gt;();
-        
-        // Serilog の設定
-        services.AddLogging(builder =&gt;
-        {
-            builder.AddSerilog(dispose: true);
-        });
-    }
-}
-
-// カスタムログ
-public class OrderService : IOrderService
-{
-    private readonly ILogger&lt;OrderService&gt; _logger;
-    
-    public async Task&lt;Order&gt; CreateOrderAsync(string userId, OrderCreateModel model)
-    {
-        _logger.LogInformation("Creating order for user {UserId}", userId);
-        
-        try
-        {
-            // 注文処理
-            var order = new Order { /* ... */ };
-            
-            _logger.LogInformation("Order {OrderId} created successfully for user {UserId}", 
-                order.Id, userId);
-            
-            return order;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to create order for user {UserId}", userId);
-            throw;
-        }
-    }
-}</code></pre>
-                </div>
-
-                <h3>セキュリティのベストプラクティス</h3>
-                <div class="code-block">
-                    <h4>セキュリティ対策の実装</h4>
-                    <pre><code>public class Startup
-{
-    public void ConfigureServices(IServiceCollection services)
-    {
-        // HTTPS リダイレクト
-        services.AddHttpsRedirection(options =&gt;
-        {
-            options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-            options.HttpsPort = 443;
-        });
-        
-        // セキュリティヘッダー
-        services.AddHsts(options =&gt;
-        {
-            options.Preload = true;
-            options.IncludeSubDomains = true;
-            options.MaxAge = TimeSpan.FromDays(60);
-        });
-        
-        // CSRF対策
-        services.AddAntiforgery(options =&gt;
-        {
-            options.HeaderName = "X-CSRF-TOKEN";
-            options.SameSite = SameSiteMode.Strict;
-        });
-        
-        // Rate Limiting
-        services.AddMemoryCache();
-        services.AddSingleton&lt;IRateLimitConfiguration, RateLimitConfiguration&gt;();
-    }
-    
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-    {
-        // セキュリティヘッダーの追加
-        app.Use(async (context, next) =&gt;
-        {
-            context.Response.Headers.Add("X-Frame-Options", "DENY");
-            context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-            context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-            await next();
-        });
-        
-        app.UseHsts();
-        app.UseHttpsRedirection();
-    }
-}</code></pre>
-                </div>
-
-                <div class="highlight">
-                    <h3>学習の次のステップ</h3>
-                    <ul>
-                        <li><strong>Microservices:</strong> 大規模アプリケーションの分散アーキテクチャ</li>
-                        <li><strong>SignalR:</strong> リアルタイム通信機能</li>
-                        <li><strong>Blazor:</strong> C#でのクライアントサイド開発</li>
-                        <li><strong>GraphQL:</strong> 効率的なAPI設計</li>
-                        <li><strong>Azure Functions:</strong> サーバーレス アーキテクチャ</li>
-                    </ul>
-                </div>
-            </div>
-        </main>
+    <!-- Progress Bar -->
+    <div class="progress" style="height: 3px;">
+        <div class="progress-bar" role="progressbar" style="width: 0%" id="progressBar"></div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Main Content Container -->
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebarMenu">
+                <div class="position-sticky pt-3">
+                    <div class="sidebar-heading">
+                        <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted">
+                            <span>学習コース</span>
+                            <i class="bi bi-bookmark-star"></i>
+                        </h6>
+                    </div>
+                    
+                    <ul class="nav flex-column" id="courseMenu">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#introduction" data-page="introduction">
+                                <i class="bi bi-play-circle me-2"></i>1. はじめに
+                                <span class="badge bg-success ms-auto">完了</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#dotnet-basics" data-page="dotnet-basics">
+                                <i class="bi bi-circle me-2"></i>2. .NET基礎
+                                <span class="badge bg-primary ms-auto">学習中</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#csharp-basics" data-page="csharp-basics">
+                                <i class="bi bi-circle me-2"></i>3. C#基本文法
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#aspnet-core" data-page="aspnet-core">
+                                <i class="bi bi-circle me-2"></i>4. ASP.NET Core
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#mvc-pattern" data-page="mvc-pattern">
+                                <i class="bi bi-circle me-2"></i>5. MVCパターン
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#entity-framework" data-page="entity-framework">
+                                <i class="bi bi-circle me-2"></i>6. Entity Framework
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#database" data-page="database">
+                                <i class="bi bi-circle me-2"></i>7. データベース設計
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#authentication" data-page="authentication">
+                                <i class="bi bi-circle me-2"></i>8. 認証・認可
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#ecommerce-project" data-page="ecommerce-project">
+                                <i class="bi bi-circle me-2"></i>9. ECサイト構築
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#deployment" data-page="deployment">
+                                <i class="bi bi-circle me-2"></i>10. デプロイメント
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#advanced-topics" data-page="advanced-topics">
+                                <i class="bi bi-circle me-2"></i>11. 応用トピック
+                            </a>
+                        </li>
+                    </ul>
+
+                    <hr>
+                    
+                    <div class="px-3">
+                        <h6 class="sidebar-heading text-muted mb-2">学習統計</h6>
+                        <div class="mb-2">
+                            <small class="text-muted">完了したレッスン</small>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success" style="width: 18%"></div>
+                            </div>
+                            <small class="text-muted">2/11</small>
+                        </div>
+                        <div class="mb-2">
+                            <small class="text-muted">総学習時間</small>
+                            <div><small class="fw-bold">12時間 30分</small></div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Main Content Area -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div id="content-area" class="py-4">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>.NET 学習サイト</h5>
+                    <p class="text-muted">ECサイト構築を通じて学ぶ実践的な.NET開発</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-0">© 2024 .NET Learning Site. All rights reserved.</p>
+                    <div class="mt-2">
+                        <a href="#" class="text-light me-3"><i class="bi bi-github"></i></a>
+                        <a href="#" class="text-light me-3"><i class="bi bi-twitter"></i></a>
+                        <a href="#" class="text-light"><i class="bi bi-linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Prism.js for syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="assets/js/app.js"></script>
 </body>
 </html>

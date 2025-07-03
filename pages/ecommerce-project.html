@@ -1,0 +1,444 @@
+<div class="section-header">
+    <h1><i class="bi bi-shop"></i> ECサイト構築</h1>
+    <p>これまで学習した技術を統合して、実際のECサイトを構築します</p>
+</div>
+
+<div class="learning-objectives">
+    <h3><i class="bi bi-target"></i> 学習目標</h3>
+    <ul>
+        <li>ショッピングカート機能の実装</li>
+        <li>商品カタログシステムの構築</li>
+        <li>注文処理システムの実装</li>
+        <li>決済システムの統合</li>
+        <li>管理者機能の実装</li>
+    </ul>
+</div>
+
+<!-- プロジェクト概要 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-diagram-3"></i> プロジェクト構造</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card learning-card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-globe display-4 text-primary"></i>
+                                <h5 class="card-title">フロントエンド</h5>
+                                <p class="card-text">ユーザー向けの商品閲覧・購入画面</p>
+                                <ul class="list-unstyled">
+                                    <li>商品一覧</li>
+                                    <li>商品詳細</li>
+                                    <li>ショッピングカート</li>
+                                    <li>注文フロー</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card learning-card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-gear display-4 text-success"></i>
+                                <h5 class="card-title">バックエンド</h5>
+                                <p class="card-text">APIとビジネスロジック</p>
+                                <ul class="list-unstyled">
+                                    <li>商品管理API</li>
+                                    <li>注文処理API</li>
+                                    <li>在庫管理</li>
+                                    <li>決済処理</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card learning-card">
+                            <div class="card-body text-center">
+                                <i class="bi bi-shield-check display-4 text-warning"></i>
+                                <h5 class="card-title">管理機能</h5>
+                                <p class="card-text">管理者向けの操作画面</p>
+                                <ul class="list-unstyled">
+                                    <li>商品登録・編集</li>
+                                    <li>注文管理</li>
+                                    <li>在庫管理</li>
+                                    <li>売上分析</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実装段階 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-list-check"></i> 実装段階</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card border-primary h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h5><i class="bi bi-1-circle"></i> フェーズ1: 基盤構築</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        プロジェクト作成とデータベース設計
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        エンティティクラスの作成
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-check-circle text-success"></i>
+                                        基本的なCRUD操作
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted"></i>
+                                        認証システムの実装
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card border-success h-100">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="bi bi-2-circle"></i> フェーズ2: 機能実装</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted"></i>
+                                        ショッピングカート機能
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted"></i>
+                                        注文処理システム
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted"></i>
+                                        決済機能統合
+                                    </li>
+                                    <li class="list-group-item">
+                                        <i class="bi bi-circle text-muted"></i>
+                                        管理者機能
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ショッピングカート実装 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-cart"></i> ショッピングカート実装</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>サービスクラス</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">public class CartService : ICartService
+{
+    private readonly ApplicationDbContext _context;
+    
+    public async Task AddToCartAsync(string userId, int productId, int quantity)
+    {
+        var cartItem = await _context.CartItems
+            .FirstOrDefaultAsync(c => c.UserId == userId && c.ProductId == productId);
+        
+        if (cartItem == null)
+        {
+            cartItem = new CartItem 
+            { 
+                UserId = userId, 
+                ProductId = productId, 
+                Quantity = quantity 
+            };
+            _context.CartItems.Add(cartItem);
+        }
+        else
+        {
+            cartItem.Quantity += quantity;
+        }
+        
+        await _context.SaveChangesAsync();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>コントローラー</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">[Authorize]
+public class CartController : Controller
+{
+    private readonly ICartService _cartService;
+    
+    [HttpPost]
+    public async Task&lt;IActionResult&gt; AddToCart(int productId, int quantity)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        await _cartService.AddToCartAsync(userId, productId, quantity);
+        
+        return Json(new { success = true, message = "商品をカートに追加しました" });
+    }
+    
+    public async Task&lt;IActionResult&gt; Index()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var cart = await _cartService.GetCartAsync(userId);
+        return View(cart);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 注文処理システム -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-receipt"></i> 注文処理システム</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle"></i> 注文フロー</h5>
+                    <ol>
+                        <li>カート内容確認</li>
+                        <li>配送先情報入力</li>
+                        <li>決済方法選択</li>
+                        <li>注文内容確認</li>
+                        <li>注文確定・決済処理</li>
+                    </ol>
+                </div>
+                
+                <div class="code-block">
+                    <pre><code class="language-csharp">public class OrderService : IOrderService
+{
+    public async Task&lt;Order&gt; CreateOrderAsync(string userId, OrderCreateModel model)
+    {
+        var cart = await _cartService.GetCartAsync(userId);
+        
+        if (!cart.Items.Any())
+            throw new InvalidOperationException("カートが空です");
+        
+        var order = new Order
+        {
+            UserId = userId,
+            OrderDate = DateTime.Now,
+            TotalAmount = cart.TotalAmount,
+            ShippingAddress = model.ShippingAddress,
+            OrderItems = cart.Items.Select(item => new OrderItem
+            {
+                ProductId = item.ProductId,
+                Quantity = item.Quantity,
+                UnitPrice = item.Product.Price
+            }).ToList()
+        };
+        
+        // 在庫チェックと更新
+        foreach (var item in cart.Items)
+        {
+            var product = await _productService.GetByIdAsync(item.ProductId);
+            if (product.Stock < item.Quantity)
+                throw new InsufficientStockException($"{product.Name}の在庫が不足しています");
+            
+            product.Stock -= item.Quantity;
+        }
+        
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+        
+        return order;
+    }
+}</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 管理者機能 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-person-badge"></i> 管理者機能</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card border-info">
+                            <div class="card-body text-center">
+                                <i class="bi bi-box-seam display-5 text-info"></i>
+                                <h6 class="card-title">商品管理</h6>
+                                <ul class="list-unstyled small">
+                                    <li>商品登録・編集</li>
+                                    <li>カテゴリ管理</li>
+                                    <li>画像アップロード</li>
+                                    <li>在庫管理</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-warning">
+                            <div class="card-body text-center">
+                                <i class="bi bi-list-check display-5 text-warning"></i>
+                                <h6 class="card-title">注文管理</h6>
+                                <ul class="list-unstyled small">
+                                    <li>注文一覧・詳細</li>
+                                    <li>ステータス更新</li>
+                                    <li>配送管理</li>
+                                    <li>返品・キャンセル</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-success">
+                            <div class="card-body text-center">
+                                <i class="bi bi-graph-up display-5 text-success"></i>
+                                <h6 class="card-title">分析・レポート</h6>
+                                <ul class="list-unstyled small">
+                                    <li>売上分析</li>
+                                    <li>商品ランキング</li>
+                                    <li>顧客分析</li>
+                                    <li>在庫レポート</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- デプロイメント準備 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h3><i class="bi bi-cloud-upload"></i> デプロイメント準備</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>本番環境設定</h5>
+                        <div class="code-block">
+                            <pre><code class="language-json">{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=prod-server;Database=ECommerceDB;..."
+  },
+  "PaymentSettings": {
+    "StripeSecretKey": "sk_live_...",
+    "StripePublishableKey": "pk_live_..."
+  },
+  "EmailSettings": {
+    "SmtpServer": "smtp.sendgrid.net",
+    "ApiKey": "SG...."
+  }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>セキュリティ対策</h5>
+                        <ul>
+                            <li><strong>HTTPS強制</strong>: すべての通信を暗号化</li>
+                            <li><strong>CSRF対策</strong>: トークンによる保護</li>
+                            <li><strong>入力検証</strong>: モデルバリデーション</li>
+                            <li><strong>権限管理</strong>: ロールベースアクセス制御</li>
+                            <li><strong>ログ監視</strong>: セキュリティイベントの記録</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 最終課題 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h3><i class="bi bi-trophy"></i> 最終課題</h3>
+            </div>
+            <div class="card-body">
+                <h5>完全なECサイト構築</h5>
+                <p>以下の機能をすべて含むECサイトを構築してください：</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>必須機能:</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">✅ 商品カタログ表示</li>
+                            <li class="list-group-item">✅ 商品検索・フィルタリング</li>
+                            <li class="list-group-item">✅ ショッピングカート</li>
+                            <li class="list-group-item">✅ ユーザー認証</li>
+                            <li class="list-group-item">✅ 注文処理</li>
+                            <li class="list-group-item">✅ 管理者機能</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>オプション機能:</h6>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item">💡 商品レビュー機能</li>
+                            <li class="list-group-item">💡 ウィッシュリスト</li>
+                            <li class="list-group-item">💡 クーポン・割引機能</li>
+                            <li class="list-group-item">💡 メール通知</li>
+                            <li class="list-group-item">💡 売上分析ダッシュボード</li>
+                            <li class="list-group-item">💡 モバイル対応</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning mt-3">
+                    <h6><i class="bi bi-clock"></i> 推定作業時間</h6>
+                    <ul class="mb-0">
+                        <li><strong>基本機能:</strong> 40-60時間</li>
+                        <li><strong>応用機能:</strong> +20-30時間</li>
+                        <li><strong>テスト・デバッグ:</strong> +10-15時間</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ナビゲーションボタン -->
+<div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-primary" onclick="app.navigatePrevious()">
+        <i class="bi bi-arrow-left"></i> 前へ: 認証・認可
+    </button>
+    <button class="btn btn-success me-2" onclick="app.markPageAsCompleted('ecommerce-project')">
+        <i class="bi bi-check-circle"></i> 完了としてマーク
+    </button>
+    <button class="btn btn-primary" onclick="app.navigateNext()">
+        次へ: デプロイメント <i class="bi bi-arrow-right"></i>
+    </button>
+</div>

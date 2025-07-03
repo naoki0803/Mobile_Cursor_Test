@@ -1,0 +1,822 @@
+<div class="section-header">
+    <h1><i class="bi bi-file-code"></i> C#基本文法</h1>
+    <p>ECサイト開発で必要となるC#の基本文法を実践的な例を交えて学習します</p>
+</div>
+
+<div class="learning-objectives">
+    <h3><i class="bi bi-target"></i> 学習目標</h3>
+    <ul>
+        <li>C#の基本的な型とその使い方を理解する</li>
+        <li>クラスとオブジェクトの概念を理解し、実装できる</li>
+        <li>継承、ポリモーフィズム、カプセル化を理解する</li>
+        <li>例外処理の適切な実装方法を学ぶ</li>
+        <li>LINQ（Language Integrated Query）の基本的な使い方を理解する</li>
+    </ul>
+</div>
+
+<!-- 基本的な型とデータ型 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-hash"></i> 基本的なデータ型</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">C#には様々なデータ型があります。ECサイト開発でよく使用される型を中心に学習しましょう。</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-123"></i> 数値型</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// ECサイトでよく使用される数値型
+int productId = 1001;                    // 商品ID
+decimal price = 29800.00M;               // 価格（高精度）
+double discount = 0.15;                  // 割引率
+float rating = 4.5f;                     // 評価
+
+// 大きな数値
+long orderNumber = 202401001L;           // 注文番号
+uint stock = 50U;                        // 在庫数（負数なし）
+
+// C# 6.0以降: 数値リテラルの区切り文字
+int largeNumber = 1_000_000;             // 100万
+decimal bigPrice = 1_999_999.99M;        // 約200万円
+
+Console.WriteLine($"商品ID: {productId}");
+Console.WriteLine($"価格: ¥{price:N0}");
+Console.WriteLine($"割引率: {discount:P}");
+Console.WriteLine($"評価: {rating}★");</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-type"></i> 文字列とその他の型</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// 文字列型（最も重要）
+string productName = "ワイヤレスイヤホン";
+string description = "高音質Bluetooth対応";
+char category = 'E';                     // Electronics
+
+// ブール型
+bool isAvailable = true;                 // 在庫あり
+bool isOnSale = false;                   // セール中ではない
+
+// 日付・時刻
+DateTime createdDate = DateTime.Now;
+DateTime saleEndDate = new DateTime(2024, 12, 31);
+DateOnly deliveryDate = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
+TimeSpan shippingTime = TimeSpan.FromDays(2);
+
+// null許容型（C# 2.0以降）
+int? categoryId = null;                  // まだ未分類
+decimal? salePrice = null;               // セール価格未設定
+
+// 文字列補間（C# 6.0以降）
+string productInfo = $"商品名: {productName}, 価格: ¥{price:N0}";
+Console.WriteLine(productInfo);</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="bi bi-lightbulb"></i> 実践的なポイント</h6>
+                    <ul class="mb-0">
+                        <li><strong>decimal</strong>を価格計算に使用することで、浮動小数点の誤差を回避</li>
+                        <li><strong>null許容型</strong>でオプションの値を安全に扱う</li>
+                        <li><strong>文字列補間</strong>でテンプレート文字列を読みやすく記述</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- クラスとオブジェクト -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-box"></i> クラスとオブジェクト</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">ECサイトの商品を表現するクラスを例に、オブジェクト指向プログラミングの基本を学びます。</p>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5><i class="bi bi-gear"></i> 基本的なクラス定義</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// ECサイトの商品クラス
+public class Product
+{
+    // フィールド（private推奨）
+    private decimal _originalPrice;
+    private int _stock;
+    
+    // プロパティ（public）
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string ImageUrl { get; set; } = string.Empty;
+    public int CategoryId { get; set; }
+    public DateTime CreatedDate { get; set; }
+    
+    // 計算されたプロパティ
+    public decimal Price 
+    { 
+        get => _originalPrice;
+        set => _originalPrice = value > 0 ? value : throw new ArgumentException("価格は正の値である必要があります");
+    }
+    
+    public int Stock 
+    { 
+        get => _stock;
+        set => _stock = Math.Max(0, value); // 負の在庫は0に
+    }
+    
+    // 読み取り専用プロパティ
+    public bool IsInStock => Stock > 0;
+    public bool IsNew => (DateTime.Now - CreatedDate).Days <= 30;
+    
+    // コンストラクタ
+    public Product()
+    {
+        CreatedDate = DateTime.Now;
+    }
+    
+    public Product(string name, decimal price, int categoryId) : this()
+    {
+        Name = name ?? throw new ArgumentNullException(nameof(name));
+        Price = price;
+        CategoryId = categoryId;
+    }
+    
+    // メソッド
+    public decimal CalculateDiscountedPrice(decimal discountRate)
+    {
+        if (discountRate < 0 || discountRate > 1)
+            throw new ArgumentOutOfRangeException(nameof(discountRate), "割引率は0〜1の間である必要があります");
+            
+        return Price * (1 - discountRate);
+    }
+    
+    public bool UpdateStock(int quantity)
+    {
+        if (Stock >= quantity)
+        {
+            Stock -= quantity;
+            return true;
+        }
+        return false;
+    }
+    
+    public override string ToString()
+    {
+        return $"{Name} - ¥{Price:N0} (在庫: {Stock})";
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 継承とポリモーフィズム -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-diagram-2"></i> 継承とポリモーフィズム</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">商品の種類に応じて異なる動作を実装するため、継承とポリモーフィズムを活用します。</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-arrow-up"></i> 基底クラスと継承</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// 基底クラス（抽象クラス）
+public abstract class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+    
+    // 抽象メソッド（派生クラスで実装必須）
+    public abstract decimal CalculateShippingCost();
+    public abstract string GetWarrantyInfo();
+    
+    // 仮想メソッド（派生クラスでオーバーライド可能）
+    public virtual string GetProductInfo()
+    {
+        return $"{Name} - ¥{Price:N0}";
+    }
+    
+    // 共通メソッド
+    public bool IsInStock() => Stock > 0;
+}
+
+// 電子機器クラス
+public class ElectronicsProduct : Product
+{
+    public string Brand { get; set; } = string.Empty;
+    public int WarrantyMonths { get; set; } = 12;
+    public double PowerConsumption { get; set; }
+    
+    public override decimal CalculateShippingCost()
+    {
+        // 電子機器は重量に基づく送料計算
+        return Price > 50000 ? 0 : 800; // 5万円以上は送料無料
+    }
+    
+    public override string GetWarrantyInfo()
+    {
+        return $"{WarrantyMonths}ヶ月保証";
+    }
+    
+    public override string GetProductInfo()
+    {
+        return base.GetProductInfo() + $" [{Brand}] {GetWarrantyInfo()}";
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-layers"></i> インターフェース</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// インターフェース
+public interface IDiscountable
+{
+    decimal ApplyDiscount(decimal discountRate);
+    bool IsEligibleForDiscount();
+}
+
+public interface IReviewable
+{
+    double AverageRating { get; }
+    int ReviewCount { get; }
+    void AddReview(int rating, string comment);
+}
+
+// 書籍クラス（複数インターフェース実装）
+public class BookProduct : Product, IDiscountable, IReviewable
+{
+    public string Author { get; set; } = string.Empty;
+    public string ISBN { get; set; } = string.Empty;
+    public int PageCount { get; set; }
+    
+    private List<Review> _reviews = new List<Review>();
+    
+    public double AverageRating => 
+        _reviews.Count > 0 ? _reviews.Average(r => r.Rating) : 0;
+    
+    public int ReviewCount => _reviews.Count;
+    
+    public override decimal CalculateShippingCost()
+    {
+        // 書籍は定額送料
+        return 300;
+    }
+    
+    public override string GetWarrantyInfo()
+    {
+        return "返品可能期間: 30日";
+    }
+    
+    public decimal ApplyDiscount(decimal discountRate)
+    {
+        return Price * (1 - discountRate);
+    }
+    
+    public bool IsEligibleForDiscount()
+    {
+        // 発売から3ヶ月経過した書籍は割引対象
+        return (DateTime.Now - CreatedDate).Days > 90;
+    }
+    
+    public void AddReview(int rating, string comment)
+    {
+        _reviews.Add(new Review 
+        { 
+            Rating = rating, 
+            Comment = comment, 
+            Date = DateTime.Now 
+        });
+    }
+}
+
+public class Review
+{
+    public int Rating { get; set; }
+    public string Comment { get; set; } = string.Empty;
+    public DateTime Date { get; set; }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- コレクションとLINQ -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-collection"></i> コレクションとLINQ</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">商品データを効率的に操作するためのコレクションとLINQの使い方を学びます。</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-list-ul"></i> 主要なコレクション型</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// List&lt;T&gt; - 最もよく使用される
+var products = new List&lt;Product&gt;
+{
+    new ElectronicsProduct 
+    { 
+        Id = 1, 
+        Name = "iPhone 15", 
+        Price = 124800,
+        Brand = "Apple"
+    },
+    new BookProduct 
+    { 
+        Id = 2, 
+        Name = "C#入門書", 
+        Price = 3200,
+        Author = "田中太郎"
+    }
+};
+
+// Dictionary&lt;TKey, TValue&gt; - 高速検索
+var productCategories = new Dictionary&lt;int, string&gt;
+{
+    { 1, "Electronics" },
+    { 2, "Books" },
+    { 3, "Clothing" },
+    { 4, "Home & Garden" }
+};
+
+// HashSet&lt;T&gt; - 重複なしコレクション
+var productTags = new HashSet&lt;string&gt;
+{
+    "新商品", "人気", "セール対象"
+};
+
+// Queue&lt;T&gt; とStack&lt;T&gt; - 特殊な順序
+var shippingQueue = new Queue&lt;Order&gt;();
+var operationHistory = new Stack&lt;string&gt;();
+
+// 基本操作
+products.Add(new ElectronicsProduct { Name = "iPad" });
+products.Remove(products.First());
+bool hasCategory = productCategories.ContainsKey(1);
+productTags.Add("限定版");</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-search"></i> LINQ操作</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// フィルタリング
+var availableProducts = products
+    .Where(p => p.IsInStock())
+    .ToList();
+
+var expensiveProducts = products
+    .Where(p => p.Price > 10000)
+    .ToList();
+
+// ソート
+var sortedByPrice = products
+    .OrderBy(p => p.Price)
+    .ToList();
+
+var sortedByNameDesc = products
+    .OrderByDescending(p => p.Name)
+    .ToList();
+
+// 変換（射影）
+var productNames = products
+    .Select(p => p.Name)
+    .ToList();
+
+var productSummaries = products
+    .Select(p => new 
+    {
+        p.Id,
+        p.Name,
+        FormattedPrice = $"¥{p.Price:N0}",
+        Category = productCategories[p.CategoryId]
+    })
+    .ToList();
+
+// 集計操作
+var totalValue = products.Sum(p => p.Price * p.Stock);
+var averagePrice = products.Average(p => p.Price);
+var maxPrice = products.Max(p => p.Price);
+var productCount = products.Count();
+
+// グループ化
+var productsByCategory = products
+    .GroupBy(p => p.CategoryId)
+    .Select(g => new 
+    {
+        CategoryId = g.Key,
+        Products = g.ToList(),
+        Count = g.Count(),
+        TotalValue = g.Sum(p => p.Price * p.Stock)
+    })
+    .ToList();
+
+// 複雑なクエリ
+var featuredProducts = products
+    .Where(p => p.IsInStock() && p.Price > 5000)
+    .OrderByDescending(p => p.CreatedDate)
+    .Take(10)
+    .Select(p => new 
+    {
+        p.Name,
+        p.Price,
+        Category = productCategories[p.CategoryId],
+        IsNew = p.IsNew
+    })
+    .ToList();</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 例外処理 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-exclamation-triangle"></i> 例外処理</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">ECサイトで発生する可能性のある例外を適切に処理する方法を学習します。</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-shield-exclamation"></i> 基本的な例外処理</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">public class ProductService
+{
+    private List&lt;Product&gt; _products = new List&lt;Product&gt;();
+    
+    public Product GetProduct(int id)
+    {
+        try
+        {
+            var product = _products.FirstOrDefault(p => p.Id == id);
+            if (product == null)
+                throw new ProductNotFoundException($"商品ID {id} が見つかりません");
+                
+            return product;
+        }
+        catch (ProductNotFoundException)
+        {
+            // 再スロー - 呼び出し元で処理
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // 予期しない例外をログに記録
+            Console.WriteLine($"予期しない例外: {ex.Message}");
+            throw new ApplicationException("商品の取得中にエラーが発生しました", ex);
+        }
+    }
+    
+    public bool UpdateStock(int productId, int quantity)
+    {
+        try
+        {
+            var product = GetProduct(productId);
+            
+            if (quantity < 0)
+                throw new ArgumentException("数量は正の値である必要があります", nameof(quantity));
+                
+            if (product.Stock < quantity)
+                throw new InsufficientStockException($"在庫不足: 要求数量 {quantity}, 利用可能 {product.Stock}");
+                
+            product.Stock -= quantity;
+            return true;
+        }
+        catch (ProductNotFoundException)
+        {
+            return false;
+        }
+        catch (InsufficientStockException ex)
+        {
+            Console.WriteLine($"在庫エラー: {ex.Message}");
+            return false;
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-bug"></i> カスタム例外クラス</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// カスタム例外クラス
+public class ProductNotFoundException : Exception
+{
+    public int ProductId { get; }
+    
+    public ProductNotFoundException(int productId) 
+        : base($"商品ID {productId} が見つかりません")
+    {
+        ProductId = productId;
+    }
+    
+    public ProductNotFoundException(string message) : base(message) { }
+    
+    public ProductNotFoundException(string message, Exception innerException) 
+        : base(message, innerException) { }
+}
+
+public class InsufficientStockException : Exception
+{
+    public int RequestedQuantity { get; }
+    public int AvailableStock { get; }
+    
+    public InsufficientStockException(int requested, int available)
+        : base($"在庫不足: 要求数量 {requested}, 利用可能 {available}")
+    {
+        RequestedQuantity = requested;
+        AvailableStock = available;
+    }
+}
+
+// 使用例
+public class OrderService
+{
+    public void ProcessOrder(List&lt;OrderItem&gt; items)
+    {
+        var errors = new List&lt;string&gt;();
+        
+        foreach (var item in items)
+        {
+            try
+            {
+                UpdateProductStock(item.ProductId, item.Quantity);
+            }
+            catch (ProductNotFoundException ex)
+            {
+                errors.Add($"商品 {ex.ProductId} が見つかりません");
+            }
+            catch (InsufficientStockException ex)
+            {
+                errors.Add($"商品ID {item.ProductId}: {ex.Message}");
+            }
+        }
+        
+        if (errors.Any())
+        {
+            throw new OrderProcessingException(
+                "注文処理中にエラーが発生しました", 
+                errors);
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="alert alert-warning mt-3">
+                    <h6><i class="bi bi-exclamation-triangle"></i> 例外処理のベストプラクティス</h6>
+                    <ul class="mb-0">
+                        <li>具体的な例外型をキャッチし、汎用的なExceptionは最後の手段として使用</li>
+                        <li>例外をキャッチしたら、適切にログを記録する</li>
+                        <li>例外を無視（空のcatchブロック）しない</li>
+                        <li>finally ブロックでリソースをクリーンアップ（usingステートメント推奨）</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- モダンC#の機能 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-stars"></i> モダンC#の機能</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">最新のC#で追加された便利な機能を活用してコードをより簡潔に書きます。</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-lightning"></i> C# 6.0以降の機能</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// 自動実装プロパティの初期化
+public class Product
+{
+    public string Name { get; set; } = string.Empty;
+    public DateTime CreatedDate { get; set; } = DateTime.Now;
+    public List&lt;string&gt; Tags { get; set; } = new List&lt;string&gt;();
+}
+
+// 式本体メンバー
+public class Calculator
+{
+    public decimal CalculateTax(decimal amount) => amount * 0.1M;
+    public bool IsExpensive(decimal price) => price > 10000;
+    public string FormatPrice(decimal price) => $"¥{price:N0}";
+}
+
+// null条件演算子
+Product product = GetProduct(123);
+string productName = product?.Name ?? "不明な商品";
+int? reviewCount = product?.Reviews?.Count;
+
+// nameof演算子
+public void SetProductName(string name)
+{
+    if (string.IsNullOrEmpty(name))
+        throw new ArgumentException("商品名は必須です", nameof(name));
+    // ...
+}
+
+// 文字列補間
+string message = $"商品 '{product.Name}' の価格は ¥{product.Price:N0} です";
+
+// パターンマッチング（C# 7.0）
+if (product is ElectronicsProduct electronics)
+{
+    Console.WriteLine($"ブランド: {electronics.Brand}");
+}
+
+switch (product)
+{
+    case ElectronicsProduct e when e.Price > 50000:
+        Console.WriteLine("高価な電子機器");
+        break;
+    case BookProduct b:
+        Console.WriteLine($"著者: {b.Author}");
+        break;
+    default:
+        Console.WriteLine("その他の商品");
+        break;
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-gear-wide-connected"></i> C# 8.0以降の機能</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// null許容参照型（C# 8.0）
+#nullable enable
+
+public class Product
+{
+    public string Name { get; set; } = string.Empty;  // null非許容
+    public string? Description { get; set; }          // null許容
+}
+
+// パターンマッチングの拡張
+public string GetShippingInfo(Product product) => product switch
+{
+    ElectronicsProduct { Price: > 50000 } => "送料無料",
+    ElectronicsProduct => "送料800円",
+    BookProduct => "送料300円",
+    _ => "送料要確認"
+};
+
+// using宣言（C# 8.0）
+public void ProcessFile(string filePath)
+{
+    using var file = File.OpenRead(filePath);
+    // ファイル処理
+    // メソッド終了時に自動的にDispose()が呼ばれる
+}
+
+// インデックスと範囲（C# 8.0）
+var products = new List&lt;Product&gt; { /* ... */ };
+var lastProduct = products[^1];              // 最後の要素
+var firstThree = products[..3];              // 最初の3つ
+var lastTwo = products[^2..];                // 最後の2つ
+
+// レコード型（C# 9.0）
+public record ProductSummary(int Id, string Name, decimal Price);
+
+var summary = new ProductSummary(1, "iPhone", 124800);
+var discounted = summary with { Price = 99800 };  // 不変更新
+
+// init専用プロパティ（C# 9.0）
+public class Product
+{
+    public int Id { get; init; }
+    public string Name { get; init; } = string.Empty;
+    
+    // オブジェクト初期化後は変更不可
+}
+
+var product = new Product { Id = 1, Name = "Sample" };
+// product.Id = 2; // コンパイルエラー</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実践的な練習問題 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h3><i class="bi bi-puzzle"></i> 実践的な練習問題</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>基礎編:</h5>
+                        <ol>
+                            <li>
+                                <strong>ショッピングカートクラス:</strong>
+                                <p>商品を追加・削除でき、合計金額を計算できるShoppingCartクラスを作成してください。</p>
+                            </li>
+                            <li>
+                                <strong>顧客クラス:</strong>
+                                <p>顧客情報（名前、メールアドレス、住所）を管理するCustomerクラスを作成し、入力検証を実装してください。</p>
+                            </li>
+                            <li>
+                                <strong>商品検索:</strong>
+                                <p>商品リストから価格帯や名前で検索する機能をLINQを使用して実装してください。</p>
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>応用編:</h5>
+                        <ol>
+                            <li>
+                                <strong>注文処理システム:</strong>
+                                <p>商品の在庫チェック、割引適用、送料計算を含む注文処理システムを設計してください。</p>
+                            </li>
+                            <li>
+                                <strong>商品カテゴリ階層:</strong>
+                                <p>カテゴリの親子関係を表現し、階層的な商品分類システムを実装してください。</p>
+                            </li>
+                            <li>
+                                <strong>在庫管理システム:</strong>
+                                <p>商品の入荷・出荷を管理し、在庫履歴を追跡できるシステムを作成してください。</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="bi bi-code-slash"></i> サンプルコード例</h6>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">// 練習問題1のヒント
+public class ShoppingCart
+{
+    private readonly List&lt;CartItem&gt; _items = new();
+    
+    public void AddItem(Product product, int quantity)
+    {
+        // 実装してみてください
+    }
+    
+    public decimal GetTotalAmount()
+    {
+        // LINQ を使用して合計を計算
+        return _items.Sum(item => item.Product.Price * item.Quantity);
+    }
+}
+
+public class CartItem
+{
+    public Product Product { get; set; }
+    public int Quantity { get; set; }
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ナビゲーションボタン -->
+<div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-primary" onclick="app.navigatePrevious()">
+        <i class="bi bi-arrow-left"></i> 前へ: .NET基礎
+    </button>
+    <button class="btn btn-success me-2" onclick="app.markPageAsCompleted('csharp-basics')">
+        <i class="bi bi-check-circle"></i> 完了としてマーク
+    </button>
+    <button class="btn btn-primary" onclick="app.navigateNext()">
+        次へ: ASP.NET Core <i class="bi bi-arrow-right"></i>
+    </button>
+</div>
