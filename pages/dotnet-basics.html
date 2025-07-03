@@ -1,0 +1,525 @@
+<div class="section-header">
+    <h1><i class="bi bi-microsoft"></i> .NET基礎</h1>
+    <p>.NETプラットフォームの基本概念、アーキテクチャ、開発環境について詳しく学習します</p>
+</div>
+
+<div class="learning-objectives">
+    <h3><i class="bi bi-target"></i> 学習目標</h3>
+    <ul>
+        <li>.NETプラットフォームの歴史と進化を理解する</li>
+        <li>.NET Framework、.NET Core、.NET 5+の違いを説明できる</li>
+        <li>CLR（Common Language Runtime）の役割を理解する</li>
+        <li>開発環境をセットアップできる</li>
+        <li>基本的な.NETアプリケーションを作成できる</li>
+    </ul>
+</div>
+
+<!-- .NETの概要 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-info-circle"></i> .NETとは</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">.NETは、Microsoftが開発したオープンソースの開発プラットフォームで、様々な種類のアプリケーションを構築できます。</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-check-circle-fill text-success"></i> 主な特徴</h5>
+                        <ul>
+                            <li><strong>言語非依存</strong>: C#、VB.NET、F#、C++/CLIなど複数の言語をサポート</li>
+                            <li><strong>クロスプラットフォーム</strong>: Windows、macOS、Linuxで動作</li>
+                            <li><strong>オープンソース</strong>: GitHubで公開され、コミュニティによる開発</li>
+                            <li><strong>高パフォーマンス</strong>: 最適化されたランタイムと JIT コンパイル</li>
+                            <li><strong>豊富なエコシステム</strong>: NuGetパッケージマネージャーと豊富なライブラリ</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-layers-fill text-primary"></i> アプリケーションタイプ</h5>
+                        <ul>
+                            <li><strong>Webアプリケーション</strong>: ASP.NET Core</li>
+                            <li><strong>デスクトップアプリ</strong>: WPF、WinForms、WinUI</li>
+                            <li><strong>モバイルアプリ</strong>: .NET MAUI</li>
+                            <li><strong>クラウドアプリ</strong>: Azure Functions、マイクロサービス</li>
+                            <li><strong>ゲーム開発</strong>: Unity</li>
+                            <li><strong>IoT</strong>: .NET IoT</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- .NETの歴史と進化 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-clock-history"></i> .NETの歴史と進化</h3>
+            </div>
+            <div class="card-body">
+                <div class="timeline">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card learning-card completed">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-calendar-event"></i> 2002年 - .NET Framework 1.0</h5>
+                                    <p class="card-text">
+                                        Microsoftが.NET Frameworkをリリース。Windows専用のプラットフォームとして誕生。
+                                        C#とVB.NETが主要言語として導入。
+                                    </p>
+                                    <span class="badge bg-secondary">Windows専用</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card learning-card completed">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-calendar-event"></i> 2016年 - .NET Core 1.0</h5>
+                                    <p class="card-text">
+                                        クロスプラットフォーム対応の.NET Coreがリリース。
+                                        オープンソース化され、Linux/macOSサポートを開始。
+                                    </p>
+                                    <span class="badge bg-primary">クロスプラットフォーム</span>
+                                    <span class="badge bg-success">オープンソース</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card learning-card in-progress">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="bi bi-calendar-event"></i> 2020年 - .NET 5</h5>
+                                    <p class="card-text">
+                                        .NET FrameworkとCoreを統合。単一の.NET実装として統一。
+                                        年次リリースサイクルを採用。
+                                    </p>
+                                    <span class="badge bg-warning">統合版</span>
+                                    <span class="badge bg-info">最新</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- アーキテクチャの比較 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-diagram-3"></i> .NET Framework vs .NET Core/.NET 5+</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card h-100 border-warning">
+                            <div class="card-header bg-warning text-dark">
+                                <h5><i class="bi bi-windows"></i> .NET Framework</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>特徴:</h6>
+                                <ul>
+                                    <li>Windows専用</li>
+                                    <li>フル機能のフレームワーク</li>
+                                    <li>WPF、WinFormsサポート</li>
+                                    <li>レガシーアプリケーション対応</li>
+                                    <li>App Domainsサポート</li>
+                                </ul>
+                                
+                                <h6>使用場面:</h6>
+                                <ul>
+                                    <li>既存のWindowsアプリケーション</li>
+                                    <li>WPF/WinFormsアプリケーション</li>
+                                    <li>App Domainsが必要な場合</li>
+                                </ul>
+                                
+                                <div class="code-block">
+                                    <pre><code class="language-xml">&lt;!-- .NET Framework プロジェクトファイル --&gt;
+&lt;Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFrameworkVersion&gt;v4.8&lt;/TargetFrameworkVersion&gt;
+    &lt;OutputType&gt;Exe&lt;/OutputType&gt;
+  &lt;/PropertyGroup&gt;
+&lt;/Project&gt;</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100 border-success">
+                            <div class="card-header bg-success text-white">
+                                <h5><i class="bi bi-globe2"></i> .NET Core/.NET 5+</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6>特徴:</h6>
+                                <ul>
+                                    <li>クロスプラットフォーム対応</li>
+                                    <li>軽量・高速</li>
+                                    <li>コンテナサポート</li>
+                                    <li>マイクロサービス向け</li>
+                                    <li>オープンソース</li>
+                                </ul>
+                                
+                                <h6>使用場面:</h6>
+                                <ul>
+                                    <li>新規Webアプリケーション</li>
+                                    <li>マイクロサービス</li>
+                                    <li>クラウドネイティブアプリ</li>
+                                    <li>コンテナ化アプリケーション</li>
+                                </ul>
+                                
+                                <div class="code-block">
+                                    <pre><code class="language-xml">&lt;!-- .NET 8 プロジェクトファイル --&gt;
+&lt;Project Sdk="Microsoft.NET.Sdk"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;
+    &lt;OutputType&gt;Exe&lt;/OutputType&gt;
+    &lt;Nullable&gt;enable&lt;/Nullable&gt;
+  &lt;/PropertyGroup&gt;
+&lt;/Project&gt;</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CLRについて -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-gear-fill"></i> CLR（Common Language Runtime）</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">CLRは.NETアプリケーションの実行環境で、メモリ管理、型安全性、例外処理などを担当します。</p>
+                
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5>CLRの主要機能:</h5>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <ul>
+                                    <li><strong>メモリ管理</strong>: ガベージコレクション</li>
+                                    <li><strong>型安全性</strong>: ランタイム型チェック</li>
+                                    <li><strong>例外処理</strong>: 構造化例外処理</li>
+                                    <li><strong>JITコンパイル</strong>: 実行時コンパイル</li>
+                                </ul>
+                            </div>
+                            <div class="col-sm-6">
+                                <ul>
+                                    <li><strong>セキュリティ</strong>: コードアクセスセキュリティ</li>
+                                    <li><strong>相互運用性</strong>: COM、Win32 API</li>
+                                    <li><strong>スレッド管理</strong>: マルチスレッドサポート</li>
+                                    <li><strong>リフレクション</strong>: 実行時型情報</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-lightbulb"></i> ポイント</h6>
+                            <p class="mb-0">CLRにより、異なる言語で書かれたコードが相互運用可能になります。C#、VB.NET、F#すべて同じCLR上で動作します。</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <h5 class="mt-4">コンパイルと実行の流れ:</h5>
+                <div class="code-block">
+                    <pre><code class="language-csharp">// 1. C#ソースコード
+public class Program 
+{
+    public static void Main() 
+    {
+        Console.WriteLine("Hello, .NET!");
+    }
+}
+
+// 2. コンパイル時: C# → IL（Intermediate Language）
+.method public hidebysig static void Main() cil managed
+{
+    .entrypoint
+    ldstr "Hello, .NET!"
+    call void [System.Console]System.Console::WriteLine(string)
+    ret
+}
+
+// 3. 実行時: IL → ネイティブコード（JITコンパイル）</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 開発環境のセットアップ -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-download"></i> 開発環境のセットアップ</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-1-circle-fill text-primary"></i> .NET SDKのインストール</h5>
+                        <p>最新の.NET SDK（Software Development Kit）をインストールします。</p>
+                        
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6>ダウンロード手順:</h6>
+                                <ol>
+                                    <li><a href="https://dotnet.microsoft.com/download" target="_blank">公式サイト</a>にアクセス</li>
+                                    <li>使用するOSに対応したSDKをダウンロード</li>
+                                    <li>インストーラーを実行</li>
+                                    <li>コマンドプロンプトで確認</li>
+                                </ol>
+                                
+                                <div class="code-block">
+                                    <pre><code class="language-bash"># インストール確認
+dotnet --version
+
+# 利用可能なSDKの表示
+dotnet --list-sdks
+
+# 利用可能なランタイムの表示
+dotnet --list-runtimes</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-2-circle-fill text-primary"></i> 開発ツールの選択</h5>
+                        <p>開発に使用するIDEやエディタを選択します。</p>
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <div class="card border-primary">
+                                    <div class="card-body">
+                                        <h6><i class="bi bi-microsoft"></i> Visual Studio</h6>
+                                        <p class="card-text mb-2">
+                                            Microsoftの統合開発環境。デバッグ、IntelliSense、豊富な拡張機能。
+                                        </p>
+                                        <span class="badge bg-primary">Windows</span>
+                                        <span class="badge bg-success">macOS</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <div class="card border-info">
+                                    <div class="card-body">
+                                        <h6><i class="bi bi-code-slash"></i> Visual Studio Code</h6>
+                                        <p class="card-text mb-2">
+                                            軽量なコードエディタ。C#拡張機能で.NET開発をサポート。
+                                        </p>
+                                        <span class="badge bg-info">クロスプラットフォーム</span>
+                                        <span class="badge bg-secondary">無料</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="card border-warning">
+                                    <div class="card-body">
+                                        <h6><i class="bi bi-terminal"></i> コマンドライン</h6>
+                                        <p class="card-text mb-2">
+                                            .NET CLI（Command Line Interface）を使用した開発。
+                                        </p>
+                                        <span class="badge bg-warning text-dark">軽量</span>
+                                        <span class="badge bg-dark">高速</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 初めての.NETアプリケーション -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-play-circle"></i> 初めての.NETアプリケーション</h3>
+            </div>
+            <div class="card-body">
+                <p class="lead">実際に簡単な.NETアプリケーションを作成してみましょう。</p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-terminal"></i> コンソールアプリケーション</h5>
+                        
+                        <h6>プロジェクト作成:</h6>
+                        <div class="code-block">
+                            <pre><code class="language-bash"># 新しいコンソールアプリを作成
+dotnet new console -n MyFirstApp
+
+# プロジェクトディレクトリに移動
+cd MyFirstApp
+
+# アプリケーションを実行
+dotnet run</code></pre>
+                        </div>
+                        
+                        <h6>基本的なC#コード:</h6>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">using System;
+
+namespace MyFirstApp
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("Hello, .NET World!");
+            
+            // ユーザー入力の取得
+            Console.Write("あなたの名前を入力してください: ");
+            string name = Console.ReadLine();
+            
+            // 挨拶を表示
+            Console.WriteLine($"こんにちは、{name}さん!");
+            
+            // アプリケーションの終了を待つ
+            Console.WriteLine("何かキーを押して終了...");
+            Console.ReadKey();
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-globe"></i> WebアプリケーションAPI</h5>
+                        
+                        <h6>プロジェクト作成:</h6>
+                        <div class="code-block">
+                            <pre><code class="language-bash"># Web APIプロジェクトを作成
+dotnet new webapi -n MyFirstWebApi
+
+# プロジェクトディレクトリに移動
+cd MyFirstWebApi
+
+# アプリケーションを実行
+dotnet run</code></pre>
+                        </div>
+                        
+                        <h6>シンプルなControllerクラス:</h6>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">using Microsoft.AspNetCore.Mvc;
+
+namespace MyFirstWebApi.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class HelloController : ControllerBase
+    {
+        [HttpGet]
+        public IActionResult Get()
+        {
+            return Ok(new { 
+                Message = "Hello from .NET Web API!",
+                Timestamp = DateTime.Now
+            });
+        }
+        
+        [HttpGet("{name}")]
+        public IActionResult GetPersonalized(string name)
+        {
+            return Ok(new { 
+                Message = $"Hello, {name}!",
+                Timestamp = DateTime.Now
+            });
+        }
+    }
+}</code></pre>
+                        </div>
+                        
+                        <div class="alert alert-success">
+                            <small><i class="bi bi-info-circle"></i> ブラウザで <code>https://localhost:5001/api/hello</code> にアクセスして結果を確認できます。</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 練習問題 -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h3><i class="bi bi-puzzle"></i> 練習問題</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>基礎編:</h5>
+                        <ol>
+                            <li>
+                                <strong>環境確認:</strong>
+                                <p>自分のPC に.NET SDKがインストールされているか確認し、バージョンを調べてください。</p>
+                            </li>
+                            <li>
+                                <strong>コンソールアプリ作成:</strong>
+                                <p>2つの数値を入力として受け取り、その合計を表示するコンソールアプリケーションを作成してください。</p>
+                            </li>
+                            <li>
+                                <strong>プロジェクト構造理解:</strong>
+                                <p>作成したプロジェクトのフォルダ構造を調べ、各ファイルの役割を説明してください。</p>
+                            </li>
+                        </ol>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>応用編:</h5>
+                        <ol>
+                            <li>
+                                <strong>WebAPI作成:</strong>
+                                <p>現在の時刻を返すWebAPIエンドポイントを作成してください。</p>
+                            </li>
+                            <li>
+                                <strong>パッケージ管理:</strong>
+                                <p>NuGetパッケージ（Newtonsoft.Json）を追加し、JSONシリアライゼーションを試してみてください。</p>
+                            </li>
+                            <li>
+                                <strong>設定ファイル:</strong>
+                                <p>appsettings.jsonを使用して、アプリケーション設定を管理してみてください。</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info mt-3">
+                    <h6><i class="bi bi-lightbulb"></i> ヒント</h6>
+                    <ul class="mb-0">
+                        <li><code>dotnet --help</code> でコマンドのヘルプを確認できます</li>
+                        <li><code>dotnet new --list</code> で利用可能なプロジェクトテンプレートを確認できます</li>
+                        <li>Visual Studio Codeの場合、C#拡張機能をインストールすると便利です</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ナビゲーションボタン -->
+<div class="d-flex justify-content-between mt-4">
+    <button class="btn btn-outline-primary" onclick="app.navigatePrevious()">
+        <i class="bi bi-arrow-left"></i> 前へ: はじめに
+    </button>
+    <button class="btn btn-success me-2" onclick="app.markPageAsCompleted('dotnet-basics')">
+        <i class="bi bi-check-circle"></i> 完了としてマーク
+    </button>
+    <button class="btn btn-primary" onclick="app.navigateNext()">
+        次へ: C#基本文法 <i class="bi bi-arrow-right"></i>
+    </button>
+</div>
