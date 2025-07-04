@@ -1,0 +1,1042 @@
+<div class="section-header">
+    <h1><i class="bi bi-gear-wide-connected"></i> 応用トピック - エンタープライズレベルの技術</h1>
+    <p class="lead">スケーラブルで高性能なECサイトを構築するための高度な技術、アーキテクチャパターン、ベストプラクティスを学習します</p>
+</div>
+
+<!-- マイクロサービスアーキテクチャ -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2><i class="bi bi-diagram-2"></i> マイクロサービスアーキテクチャ</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h4><i class="bi bi-building"></i> モノリスからマイクロサービスへ</h4>
+                        <div class="architecture-comparison">
+                            <div class="arch-item monolith">
+                                <h6><i class="bi bi-box"></i> モノリシック</h6>
+                                <div class="arch-visual">
+                                    <div class="mono-block">
+                                        <span>UI</span>
+                                        <span>ビジネスロジック</span>
+                                        <span>データアクセス</span>
+                                    </div>
+                                </div>
+                                <div class="pros-cons">
+                                    <div class="pros">
+                                        <strong>利点:</strong> シンプル、開発初期の速度
+                                    </div>
+                                    <div class="cons">
+                                        <strong>課題:</strong> スケール困難、技術固定
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="arch-item microservices">
+                                <h6><i class="bi bi-grid-3x3"></i> マイクロサービス</h6>
+                                <div class="arch-visual">
+                                    <div class="micro-grid">
+                                        <div class="service">User</div>
+                                        <div class="service">Product</div>
+                                        <div class="service">Order</div>
+                                        <div class="service">Payment</div>
+                                    </div>
+                                </div>
+                                <div class="pros-cons">
+                                    <div class="pros">
+                                        <strong>利点:</strong> 独立スケール、技術多様性
+                                    </div>
+                                    <div class="cons">
+                                        <strong>課題:</strong> 複雑性、運用コスト
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <h4><i class="bi bi-code-square"></i> サービス分割の実装</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// 商品サービス (Products.API)
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+    private readonly IMessageBus _messageBus;
+    
+    [HttpPost]
+    public async Task&lt;ActionResult&lt;Product&gt;&gt; CreateProduct(CreateProductRequest request)
+    {
+        var product = await _productService.CreateAsync(request);
+        
+        // 他のサービスに通知
+        await _messageBus.PublishAsync(new ProductCreatedEvent
+        {
+            ProductId = product.Id,
+            Name = product.Name,
+            Price = product.Price
+        });
+        
+        return Ok(product);
+    }
+}
+
+// 注文サービス (Orders.API)
+[ApiController]
+[Route("api/[controller]")]
+public class OrdersController : ControllerBase
+{
+    private readonly IOrderService _orderService;
+    private readonly IProductServiceClient _productClient;
+    
+    [HttpPost]
+    public async Task&lt;ActionResult&lt;Order&gt;&gt; CreateOrder(CreateOrderRequest request)
+    {
+        // 商品サービスから情報取得
+        var products = await _productClient.GetProductsAsync(request.ProductIds);
+        
+        var order = await _orderService.CreateAsync(request, products);
+        return Ok(order);
+    }
+}
+
+// サービス間通信クライアント
+public class ProductServiceClient : IProductServiceClient
+{
+    private readonly HttpClient _httpClient;
+    private readonly ILogger&lt;ProductServiceClient&gt; _logger;
+    
+    public ProductServiceClient(HttpClient httpClient, ILogger&lt;ProductServiceClient&gt; logger)
+    {
+        _httpClient = httpClient;
+        _logger = logger;
+    }
+    
+    public async Task&lt;List&lt;Product&gt;&gt; GetProductsAsync(List&lt;int&gt; productIds)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/products/batch", productIds);
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync&lt;List&lt;Product&gt;&gt;();
+        }
+        catch (HttpRequestException ex)
+        {
+            _logger.LogError(ex, "Failed to fetch products from Product Service");
+            throw new ServiceUnavailableException("Product Service is unavailable");
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- キャッシュ戦略 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h2><i class="bi bi-lightning-charge"></i> キャッシュ戦略とパフォーマンス最適化</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-layers"></i> 多層キャッシュ設計</h4>
+                        <div class="cache-layers">
+                            <div class="cache-layer browser">
+                                <h6><i class="bi bi-window"></i> ブラウザキャッシュ</h6>
+                                <small>静的リソース、API レスポンス</small>
+                            </div>
+                            <div class="cache-arrow">⬇</div>
+                            <div class="cache-layer cdn">
+                                <h6><i class="bi bi-cloud"></i> CDN</h6>
+                                <small>グローバル配信、画像・CSS・JS</small>
+                            </div>
+                            <div class="cache-arrow">⬇</div>
+                            <div class="cache-layer app">
+                                <h6><i class="bi bi-memory"></i> アプリケーションキャッシュ</h6>
+                                <small>メモリキャッシュ、Redis</small>
+                            </div>
+                            <div class="cache-arrow">⬇</div>
+                            <div class="cache-layer db">
+                                <h6><i class="bi bi-database"></i> データベースキャッシュ</h6>
+                                <small>クエリキャッシュ、インデックス</small>
+                            </div>
+                        </div>
+                        
+                        <h5><i class="bi bi-clock"></i> キャッシュパターン</h5>
+                        <div class="cache-patterns">
+                            <div class="pattern">
+                                <strong>Cache-Aside:</strong> アプリケーションがキャッシュを管理
+                            </div>
+                            <div class="pattern">
+                                <strong>Write-Through:</strong> 書き込み時にキャッシュも更新
+                            </div>
+                            <div class="pattern">
+                                <strong>Write-Behind:</strong> 非同期でバックエンドに書き込み
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-code"></i> Redis実装例</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Redis設定
+services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = configuration.GetConnectionString("Redis");
+});
+
+// キャッシュサービス
+public class CacheService : ICacheService
+{
+    private readonly IDistributedCache _cache;
+    private readonly ILogger&lt;CacheService&gt; _logger;
+    
+    public async Task&lt;T?&gt; GetAsync&lt;T&gt;(string key) where T : class
+    {
+        try
+        {
+            var cached = await _cache.GetStringAsync(key);
+            if (cached == null) return null;
+            
+            return JsonSerializer.Deserialize&lt;T&gt;(cached);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving cache for key {Key}", key);
+            return null;
+        }
+    }
+    
+    public async Task SetAsync&lt;T&gt;(string key, T value, TimeSpan? expiry = null)
+    {
+        try
+        {
+            var options = new DistributedCacheEntryOptions();
+            if (expiry.HasValue)
+                options.SetAbsoluteExpiration(expiry.Value);
+                
+            var serialized = JsonSerializer.Serialize(value);
+            await _cache.SetStringAsync(key, serialized, options);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error setting cache for key {Key}", key);
+        }
+    }
+}
+
+// 商品サービスでのキャッシュ活用
+public class ProductService : IProductService
+{
+    private readonly ICacheService _cache;
+    private readonly IProductRepository _repository;
+    
+    public async Task&lt;Product?&gt; GetByIdAsync(int id)
+    {
+        var cacheKey = $"product:{id}";
+        
+        // キャッシュから取得を試行
+        var cached = await _cache.GetAsync&lt;Product&gt;(cacheKey);
+        if (cached != null)
+        {
+            return cached;
+        }
+        
+        // キャッシュにない場合はDBから取得
+        var product = await _repository.GetByIdAsync(id);
+        if (product != null)
+        {
+            // 30分間キャッシュ
+            await _cache.SetAsync(cacheKey, product, TimeSpan.FromMinutes(30));
+        }
+        
+        return product;
+    }
+    
+    public async Task UpdateAsync(Product product)
+    {
+        await _repository.UpdateAsync(product);
+        
+        // キャッシュ無効化
+        var cacheKey = $"product:{product.Id}";
+        await _cache.RemoveAsync(cacheKey);
+        
+        // 関連キャッシュも無効化
+        await _cache.RemoveByPatternAsync($"category:{product.CategoryId}:*");
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- API設計とドキュメント化 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h2><i class="bi bi-api"></i> RESTful API設計とドキュメント化</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-diagram-3"></i> APIバージョニング戦略</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Program.cs - APIバージョニング設定
+builder.Services.AddApiVersioning(options =>
+{
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("X-Version"),
+        new QueryStringApiVersionReader("version")
+    );
+}).AddVersionedApiExplorer(setup =>
+{
+    setup.GroupNameFormat = "'v'VVV";
+    setup.SubstituteApiVersionInUrl = true;
+});
+
+// バージョン別コントローラー
+[ApiController]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+public class ProductsV1Controller : ControllerBase
+{
+    [HttpGet("{id}")]
+    public async Task&lt;ActionResult&lt;ProductV1Dto&gt;&gt; GetProduct(int id)
+    {
+        // バージョン1の実装
+    }
+}
+
+[ApiController]
+[ApiVersion("2.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+public class ProductsV2Controller : ControllerBase
+{
+    [HttpGet("{id}")]
+    public async Task&lt;ActionResult&lt;ProductV2Dto&gt;&gt; GetProduct(int id)
+    {
+        // バージョン2の実装（新機能追加）
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-shield"></i> APIセキュリティ</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// レート制限
+services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("default", limiterOptions =>
+    {
+        limiterOptions.PermitLimit = 100;
+        limiterOptions.Window = TimeSpan.FromMinutes(1);
+        limiterOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        limiterOptions.QueueLimit = 5;
+    });
+});
+
+// CORS設定
+services.AddCors(options =>
+{
+    options.AddPolicy("ApiPolicy", builder =>
+    {
+        builder.WithOrigins("https://ecommerce.com")
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials();
+    });
+});
+
+// API使用量制限
+[EnableRateLimiting("default")]
+[ApiController]
+public class ProductsController : ControllerBase
+{
+    [HttpGet]
+    [ResponseCache(Duration = 300, VaryByQueryKeys = new[] { "category", "page" })]
+    public async Task&lt;ActionResult&gt; GetProducts([FromQuery] ProductFilter filter)
+    {
+        // 実装
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-file-text"></i> Swagger/OpenAPI ドキュメント</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Swagger設定
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo 
+    { 
+        Title = "E-Commerce API", 
+        Version = "v1",
+        Description = "ECサイトのRESTful API",
+        Contact = new OpenApiContact
+        {
+            Name = "開発チーム",
+            Email = "dev@ecommerce.com"
+        }
+    });
+    
+    // JWT認証設定
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+    
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+    
+    // XMLコメントを含める
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
+
+// 詳細なAPIドキュメント
+/// &lt;summary&gt;
+/// 商品を作成します
+/// &lt;/summary&gt;
+/// &lt;param name="request"&gt;商品作成リクエスト&lt;/param&gt;
+/// &lt;returns&gt;作成された商品情報&lt;/returns&gt;
+/// &lt;response code="201"&gt;商品が正常に作成されました&lt;/response&gt;
+/// &lt;response code="400"&gt;リクエストデータが不正です&lt;/response&gt;
+/// &lt;response code="401"&gt;認証が必要です&lt;/response&gt;
+[HttpPost]
+[ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
+[ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; CreateProduct([FromBody] CreateProductRequest request)
+{
+    // 実装
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- リアルタイム機能 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h2><i class="bi bi-broadcast"></i> リアルタイム機能とSignalR</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-arrow-repeat"></i> SignalR Hub実装</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// SignalR Hub
+public class ECommerceHub : Hub
+{
+    private readonly IOrderService _orderService;
+    private readonly ILogger&lt;ECommerceHub&gt; _logger;
+    
+    public ECommerceHub(IOrderService orderService, ILogger&lt;ECommerceHub&gt; logger)
+    {
+        _orderService = orderService;
+        _logger = logger;
+    }
+    
+    public async Task JoinUserGroup(string userId)
+    {
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
+        _logger.LogInformation("User {UserId} joined group", userId);
+    }
+    
+    public async Task JoinAdminGroup()
+    {
+        var user = Context.User;
+        if (user?.IsInRole("Admin") == true)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, "admins");
+        }
+    }
+    
+    public override async Task OnDisconnectedAsync(Exception? exception)
+    {
+        _logger.LogInformation("User disconnected: {ConnectionId}", Context.ConnectionId);
+        await base.OnDisconnectedAsync(exception);
+    }
+}
+
+// リアルタイム通知サービス
+public class NotificationService : INotificationService
+{
+    private readonly IHubContext&lt;ECommerceHub&gt; _hubContext;
+    
+    public NotificationService(IHubContext&lt;ECommerceHub&gt; hubContext)
+    {
+        _hubContext = hubContext;
+    }
+    
+    public async Task NotifyOrderStatusChanged(string userId, int orderId, OrderStatus status)
+    {
+        await _hubContext.Clients.Group($"user-{userId}")
+            .SendAsync("OrderStatusChanged", new
+            {
+                OrderId = orderId,
+                Status = status.ToString(),
+                Message = GetStatusMessage(status),
+                Timestamp = DateTime.UtcNow
+            });
+    }
+    
+    public async Task NotifyStockLevelLow(int productId, int currentStock)
+    {
+        await _hubContext.Clients.Group("admins")
+            .SendAsync("StockAlert", new
+            {
+                ProductId = productId,
+                CurrentStock = currentStock,
+                Timestamp = DateTime.UtcNow
+            });
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-browser-chrome"></i> フロントエンド連携</h4>
+                        <div class="code-block">
+                            <pre><code class="language-javascript">// JavaScript SignalR クライアント
+class ECommerceSignalRClient {
+    constructor(userId) {
+        this.userId = userId;
+        this.connection = new signalR.HubConnectionBuilder()
+            .withUrl("/hubs/ecommerce", {
+                accessTokenFactory: () => localStorage.getItem('jwt-token')
+            })
+            .build();
+        
+        this.setupEventHandlers();
+    }
+    
+    async start() {
+        try {
+            await this.connection.start();
+            console.log("SignalR connection established");
+            
+            // ユーザーグループに参加
+            await this.connection.invoke("JoinUserGroup", this.userId);
+        } catch (err) {
+            console.error("SignalR connection failed: ", err);
+        }
+    }
+    
+    setupEventHandlers() {
+        // 注文ステータス変更通知
+        this.connection.on("OrderStatusChanged", (data) => {
+            this.showNotification(
+                `注文 #${data.OrderId} のステータスが ${data.Status} に変更されました`,
+                'success'
+            );
+            
+            // ページの注文状況を更新
+            this.updateOrderStatus(data.OrderId, data.Status);
+        });
+        
+        // 在庫アラート（管理者のみ）
+        this.connection.on("StockAlert", (data) => {
+            this.showAdminAlert(
+                `商品ID ${data.ProductId} の在庫が ${data.CurrentStock} になりました`,
+                'warning'
+            );
+        });
+        
+        // 接続状態の監視
+        this.connection.onclose((error) => {
+            console.log("SignalR connection closed", error);
+            // 再接続試行
+            setTimeout(() => this.start(), 5000);
+        });
+    }
+    
+    showNotification(message, type) {
+        // トースト通知の表示
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => toast.remove(), 5000);
+    }
+}
+
+// 使用例
+const signalRClient = new ECommerceSignalRClient(currentUserId);
+signalRClient.start();</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-graph-up"></i> パフォーマンス監視</h5>
+                        <div class="realtime-stats">
+                            <div class="stat-card">
+                                <h6>アクティブ接続数</h6>
+                                <span class="stat-value">1,234</span>
+                            </div>
+                            <div class="stat-card">
+                                <h6>1分間のメッセージ数</h6>
+                                <span class="stat-value">5,678</span>
+                            </div>
+                            <div class="stat-card">
+                                <h6>平均レスポンス時間</h6>
+                                <span class="stat-value">45ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 監視とロギング -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-activity"></i> 監視、ロギング、トラブルシューティング</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-graph-up-arrow"></i> メトリクス収集</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// カスタムメトリクス
+public class BusinessMetrics
+{
+    private readonly IMetrics _metrics;
+    
+    public BusinessMetrics(IMetrics metrics)
+    {
+        _metrics = metrics;
+    }
+    
+    public void TrackOrderCreated(decimal amount)
+    {
+        _metrics.Measure.Counter.Increment("orders.created");
+        _metrics.Measure.Gauge.SetValue("orders.total_value", amount);
+    }
+    
+    public void TrackApiResponse(string endpoint, TimeSpan duration, int statusCode)
+    {
+        _metrics.Measure.Timer.Time("api.response_time", duration, 
+            new MetricTags("endpoint", endpoint, "status", statusCode.ToString()));
+    }
+}
+
+// ヘルスチェック
+services.AddHealthChecks()
+    .AddDbContextCheck&lt;ECommerceDbContext&gt;()
+    .AddRedis(configuration.GetConnectionString("Redis"))
+    .AddUrlGroup(new Uri("https://payment-service.example.com/health"), "payment-service")
+    .AddCheck&lt;CustomHealthCheck&gt;("business-logic");
+
+public class CustomHealthCheck : IHealthCheck
+{
+    private readonly IOrderService _orderService;
+    
+    public async Task&lt;HealthCheckResult&gt; CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var pendingOrders = await _orderService.GetPendingOrdersCountAsync();
+            
+            if (pendingOrders > 1000)
+            {
+                return HealthCheckResult.Degraded($"High pending orders: {pendingOrders}");
+            }
+            
+            return HealthCheckResult.Healthy();
+        }
+        catch (Exception ex)
+        {
+            return HealthCheckResult.Unhealthy("Service check failed", ex);
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-search"></i> 分散トレーシング</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// OpenTelemetry設定
+services.AddOpenTelemetry()
+    .WithTracing(builder =>
+    {
+        builder
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddRedisInstrumentation()
+            .AddSource("ECommerce.Orders")
+            .AddJaegerExporter();
+    });
+
+// カスタムアクティビティ
+public class OrderService : IOrderService
+{
+    private static readonly ActivitySource ActivitySource = new("ECommerce.Orders");
+    
+    public async Task&lt;Order&gt; CreateOrderAsync(CreateOrderRequest request)
+    {
+        using var activity = ActivitySource.StartActivity("CreateOrder");
+        activity?.SetTag("user.id", request.UserId);
+        activity?.SetTag("items.count", request.Items.Count);
+        
+        try
+        {
+            // 各ステップでspan作成
+            using var validateActivity = ActivitySource.StartActivity("ValidateOrder");
+            await ValidateOrderAsync(request);
+            
+            using var createActivity = ActivitySource.StartActivity("CreateOrderEntity");
+            var order = await CreateOrderEntityAsync(request);
+            
+            using var processActivity = ActivitySource.StartActivity("ProcessPayment");
+            await ProcessPaymentAsync(order);
+            
+            activity?.SetTag("order.id", order.Id);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+            
+            return order;
+        }
+        catch (Exception ex)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+            throw;
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 次のステップ -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-trophy"></i> 学習完了とキャリアパス</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="achievement">
+                            <i class="bi bi-patch-check text-success display-4"></i>
+                            <h5>基礎スキル習得</h5>
+                            <ul>
+                                <li>C#とASP.NET Core</li>
+                                <li>Entity Framework</li>
+                                <li>MVCパターン</li>
+                                <li>認証・認可</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="achievement">
+                            <i class="bi bi-star text-warning display-4"></i>
+                            <h5>実践スキル習得</h5>
+                            <ul>
+                                <li>ECサイト構築</li>
+                                <li>デプロイメント</li>
+                                <li>データベース設計</li>
+                                <li>API設計</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="achievement">
+                            <i class="bi bi-rocket text-primary display-4"></i>
+                            <h5>応用スキル習得</h5>
+                            <ul>
+                                <li>マイクロサービス</li>
+                                <li>キャッシュ戦略</li>
+                                <li>監視・ログ</li>
+                                <li>パフォーマンス最適化</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="career-path mt-4">
+                    <h5><i class="bi bi-map"></i> 推奨学習継続パス</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>技術スキル強化</h6>
+                            <ul>
+                                <li>Azure/AWS認定資格取得</li>
+                                <li>Kubernetes、Docker Swarm</li>
+                                <li>GraphQL、gRPC</li>
+                                <li>機械学習とAI統合</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>ソフトスキル向上</h6>
+                            <ul>
+                                <li>チームリーダーシップ</li>
+                                <li>アーキテクチャ設計</li>
+                                <li>プロジェクト管理</li>
+                                <li>技術コミュニケーション</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- アクション -->
+<div class="text-center">
+    <div class="d-grid gap-2 d-md-block">
+        <button class="btn btn-success btn-lg me-2" onclick="app.markPageAsCompleted('advanced-topics')">
+            <i class="bi bi-check-circle"></i> 全学習完了！
+        </button>
+        <button class="btn btn-primary btn-lg" onclick="app.exportProgress()">
+            <i class="bi bi-download"></i> 学習記録をダウンロード
+        </button>
+    </div>
+</div>
+
+<style>
+.architecture-comparison {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.arch-item {
+    flex: 1;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.arch-item.monolith {
+    border-color: #17a2b8;
+}
+
+.arch-item.microservices {
+    border-color: #28a745;
+}
+
+.mono-block {
+    display: flex;
+    flex-direction: column;
+    background: #17a2b8;
+    color: white;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 10px 0;
+}
+
+.mono-block span {
+    padding: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+}
+
+.micro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+}
+
+.service {
+    background: #28a745;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 0.9em;
+}
+
+.pros-cons {
+    margin-top: 15px;
+    text-align: left;
+}
+
+.pros, .cons {
+    margin-bottom: 8px;
+    font-size: 0.9em;
+}
+
+.cache-layers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.cache-layer {
+    width: 100%;
+    max-width: 300px;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin: 5px 0;
+    color: white;
+}
+
+.cache-layer.browser {
+    background: #007bff;
+}
+
+.cache-layer.cdn {
+    background: #28a745;
+}
+
+.cache-layer.app {
+    background: #ffc107;
+    color: #212529;
+}
+
+.cache-layer.db {
+    background: #dc3545;
+}
+
+.cache-arrow {
+    font-size: 1.5em;
+    color: #6c757d;
+    margin: 5px 0;
+}
+
+.cache-patterns {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.pattern {
+    margin-bottom: 10px;
+    padding: 8px;
+    background: white;
+    border-radius: 5px;
+    font-size: 0.9em;
+}
+
+.realtime-stats {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.stat-card {
+    flex: 1;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #dee2e6;
+}
+
+.stat-card h6 {
+    margin-bottom: 10px;
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+.stat-value {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #495057;
+}
+
+.achievement {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    height: 100%;
+}
+
+.achievement ul {
+    text-align: left;
+    margin-top: 15px;
+}
+
+.achievement li {
+    margin-bottom: 5px;
+    color: #6c757d;
+}
+
+.career-path {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.career-path h6 {
+    color: #495057;
+    margin-bottom: 15px;
+}
+
+.career-path ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.career-path li {
+    padding: 5px 0;
+    color: #6c757d;
+    position: relative;
+    padding-left: 20px;
+}
+
+.career-path li::before {
+    content: "→";
+    position: absolute;
+    left: 0;
+    color: #007bff;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .architecture-comparison, .realtime-stats {
+        flex-direction: column;
+    }
+    
+    .cache-layers .cache-arrow {
+        transform: rotate(90deg);
+    }
+}
+</style>
