@@ -1,0 +1,633 @@
+<div class="section-header">
+    <h1><i class="bi bi-globe2"></i> ASP.NET Core - モダンWeb開発の基盤</h1>
+    <p class="lead">なぜWebフレームワークが必要なのか、ASP.NET Coreがどのように問題を解決するのか、そして実際のECサイト開発でどう活用するのかを学習します</p>
+</div>
+
+<!-- なぜASP.NET Coreが必要なのか -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h2><i class="bi bi-exclamation-triangle-fill"></i> なぜWebフレームワークが必要なのか？</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-x-circle text-danger"></i> フレームワークなしの問題</h4>
+                        <div class="alert alert-warning">
+                            <h6>生のHTTPサーバーで開発する場合：</h6>
+                            <ul class="mb-0">
+                                <li><strong>HTTPリクエスト解析</strong> - 手動でパースが必要</li>
+                                <li><strong>ルーティング</strong> - URLとコードの対応を自前実装</li>
+                                <li><strong>セッション管理</strong> - ユーザー状態の保持が困難</li>
+                                <li><strong>セキュリティ</strong> - 認証・認可・CSRF対策が複雑</li>
+                                <li><strong>データベース接続</strong> - 低レベルなSQL処理</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="code-block mt-3">
+                            <h6>生のHTTPサーバーの例（C#）</h6>
+                            <pre><code class="language-csharp">// 生のHTTPサーバー - 非推奨の方法
+public class RawHttpServer
+{
+    private HttpListener _listener;
+    
+    public void Start()
+    {
+        _listener = new HttpListener();
+        _listener.Prefixes.Add("http://localhost:8080/");
+        _listener.Start();
+        
+        while (true)
+        {
+            // リクエストを手動で処理
+            var context = _listener.GetContext();
+            var request = context.Request;
+            var response = context.Response;
+            
+            // URLを手動でパース
+            if (request.Url.AbsolutePath == "/products")
+            {
+                // 商品一覧のHTML生成
+                string html = GenerateProductList();
+                byte[] buffer = Encoding.UTF8.GetBytes(html);
+                response.ContentLength64 = buffer.Length;
+                response.OutputStream.Write(buffer, 0, buffer.Length);
+            }
+            // 他のルートも手動で処理...
+            
+            response.Close();
+        }
+    }
+    
+    private string GenerateProductList()
+    {
+        // HTMLを文字列で手動生成（非効率！）
+        return "<html><body><h1>商品一覧</h1>...</body></html>";
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-check-circle text-success"></i> ASP.NET Coreの解決策</h4>
+                        <div class="alert alert-success">
+                            <h6>ASP.NET Coreが提供する機能：</h6>
+                            <ul class="mb-0">
+                                <li><strong>自動ルーティング</strong> - 規約ベースのURL処理</li>
+                                <li><strong>モデルバインディング</strong> - 自動的なデータ変換</li>
+                                <li><strong>組み込みセキュリティ</strong> - 認証・認可の簡単実装</li>
+                                <li><strong>DI（依存性注入）</strong> - テスト可能な設計</li>
+                                <li><strong>ミドルウェア</strong> - 横断的関心事の処理</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="code-block mt-3">
+                            <h6>ASP.NET Coreの同等機能</h6>
+                            <pre><code class="language-csharp">// ASP.NET Coreのシンプルなコントローラー
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+    
+    // 依存性注入で自動的にサービスが提供される
+    public ProductsController(IProductService productService)
+    {
+        _productService = productService;
+    }
+    
+    // ルーティングは自動的に設定される
+    [HttpGet]
+    public async Task&lt;ActionResult&lt;List&lt;Product&gt;&gt;&gt; GetProducts()
+    {
+        // セキュリティ、エラーハンドリングは自動的に適用
+        var products = await _productService.GetAllAsync();
+        return Ok(products); // JSON形式で自動的にレスポンス
+    }
+    
+    [HttpPost]
+    public async Task&lt;ActionResult&lt;Product&gt;&gt; CreateProduct(
+        [FromBody] CreateProductRequest request) // 自動モデルバインディング
+    {
+        // バリデーションも自動的に実行
+        if (!ModelState.IsValid)
+            return BadRequest(ModelState);
+            
+        var product = await _productService.CreateAsync(request);
+        return CreatedAtAction(nameof(GetProduct), 
+            new { id = product.Id }, product);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- どのようにASP.NET Coreが動作するのか -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h2><i class="bi bi-gear-fill"></i> どのようにASP.NET Coreが動作するのか？</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4><i class="bi bi-diagram-3 text-primary"></i> リクエスト処理の流れ</h4>
+                        <div class="request-flow mb-4">
+                            <div class="flow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h6>HTTPリクエスト受信</h6>
+                                    <small>ブラウザからサーバーへのリクエスト</small>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">⬇</div>
+                            <div class="flow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h6>ミドルウェアパイプライン</h6>
+                                    <small>認証、ログ、エラーハンドリング</small>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">⬇</div>
+                            <div class="flow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h6>ルーティング</h6>
+                                    <small>URLから適切なコントローラー/アクションを特定</small>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">⬇</div>
+                            <div class="flow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h6>モデルバインディング</h6>
+                                    <small>リクエストデータをC#オブジェクトに変換</small>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">⬇</div>
+                            <div class="flow-step">
+                                <div class="step-number">5</div>
+                                <div class="step-content">
+                                    <h6>コントローラー実行</h6>
+                                    <small>ビジネスロジックの処理</small>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">⬇</div>
+                            <div class="flow-step">
+                                <div class="step-number">6</div>
+                                <div class="step-content">
+                                    <h6>レスポンス生成</h6>
+                                    <small>JSON/HTMLでのレスポンス返却</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-stack text-warning"></i> アーキテクチャ</h4>
+                        <div class="architecture-diagram">
+                            <div class="arch-layer">
+                                <div class="layer-box bg-primary text-white">
+                                    プレゼンテーション層
+                                    <small>Controllers, Views, APIs</small>
+                                </div>
+                            </div>
+                            <div class="arch-arrow">⬇</div>
+                            <div class="arch-layer">
+                                <div class="layer-box bg-success text-white">
+                                    ビジネスロジック層
+                                    <small>Services, Domain Models</small>
+                                </div>
+                            </div>
+                            <div class="arch-arrow">⬇</div>
+                            <div class="arch-layer">
+                                <div class="layer-box bg-info text-white">
+                                    データアクセス層
+                                    <small>Entity Framework, Repositories</small>
+                                </div>
+                            </div>
+                            <div class="arch-arrow">⬇</div>
+                            <div class="arch-layer">
+                                <div class="layer-box bg-secondary text-white">
+                                    データベース
+                                    <small>SQL Server, PostgreSQL, etc.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <h4><i class="bi bi-code-slash text-success"></i> 実際の実装例</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Program.cs - アプリケーションの起動設定
+var builder = WebApplication.CreateBuilder(args);
+
+// サービスの登録（DIコンテナ）
+builder.Services.AddControllers();
+builder.Services.AddDbContext&lt;ECommerceDbContext&gt;(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped&lt;IProductService, ProductService&gt;();
+builder.Services.AddAuthentication().AddJwtBearer(); // 認証設定
+
+var app = builder.Build();
+
+// ミドルウェアパイプラインの設定
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage(); // 開発環境でのエラー表示
+}
+
+app.UseHttpsRedirection();   // HTTPS強制
+app.UseAuthentication();     // 認証
+app.UseAuthorization();      // 認可
+app.MapControllers();        // コントローラーのルーティング
+
+app.Run(); // アプリケーション開始</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 何ができるようになるのか -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h2><i class="bi bi-rocket-takeoff-fill"></i> 何ができるようになるのか？</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-cart3 text-primary"></i> ECサイトの実装例</h4>
+                        <div class="feature-demo">
+                            <div class="demo-item">
+                                <h6><i class="bi bi-shop"></i> 商品カタログAPI</h6>
+                                <div class="code-block">
+                                    <pre><code class="language-csharp">[HttpGet("api/products")]
+public async Task&lt;ActionResult&lt;PagedResult&lt;Product&gt;&gt;&gt; GetProducts(
+    [FromQuery] ProductFilter filter)
+{
+    // フィルタリング、ソート、ページング
+    var products = await _productService
+        .GetFilteredAsync(filter);
+    return Ok(products);
+}</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="demo-item">
+                                <h6><i class="bi bi-cart-plus"></i> ショッピングカート</h6>
+                                <div class="code-block">
+                                    <pre><code class="language-csharp">[HttpPost("api/cart/items")]
+[Authorize] // 認証済みユーザーのみ
+public async Task&lt;ActionResult&gt; AddToCart(
+    [FromBody] AddToCartRequest request)
+{
+    var userId = User.GetUserId();
+    await _cartService.AddItemAsync(userId, request);
+    return Ok();
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-shield-check text-success"></i> セキュリティと性能</h4>
+                        <div class="security-features">
+                            <div class="feature-item">
+                                <i class="bi bi-lock-fill text-danger"></i>
+                                <div>
+                                    <h6>認証・認可</h6>
+                                    <small>JWT、OAuth、Role-based Authorization</small>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-shield-fill-check text-success"></i>
+                                <div>
+                                    <h6>CSRF/XSS対策</h6>
+                                    <small>自動的なセキュリティ保護機能</small>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-speedometer text-info"></i>
+                                <div>
+                                    <h6>キャッシュ機能</h6>
+                                    <small>メモリ、Redis、分散キャッシュ</small>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <i class="bi bi-activity text-warning"></i>
+                                <div>
+                                    <h6>ヘルスチェック</h6>
+                                    <small>アプリケーション監視機能</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="performance-demo mt-3">
+                            <h6><i class="bi bi-graph-up"></i> パフォーマンス最適化</h6>
+                            <div class="code-block">
+                                <pre><code class="language-csharp">// キャッシュの活用例
+[HttpGet("api/products/{id}")]
+public async Task&lt;ActionResult&lt;Product&gt;&gt; GetProduct(int id)
+{
+    // メモリキャッシュで高速化
+    var cacheKey = $"product_{id}";
+    if (_cache.TryGetValue(cacheKey, out Product cachedProduct))
+    {
+        return Ok(cachedProduct);
+    }
+    
+    var product = await _productService.GetByIdAsync(id);
+    _cache.Set(cacheKey, product, TimeSpan.FromMinutes(30));
+    
+    return Ok(product);
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実践演習 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-laptop"></i> ハンズオン: 最初のASP.NET Coreアプリケーション</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>ステップ1: プロジェクト作成</h5>
+                        <div class="code-block">
+                            <pre><code class="language-bash"># .NET CLIでプロジェクト作成
+dotnet new webapi -n ECommerceAPI
+cd ECommerceAPI
+
+# 必要なパッケージの追加
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer</code></pre>
+                        </div>
+                        
+                        <h5 class="mt-3">ステップ2: モデル定義</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Models/Product.cs
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>ステップ3: DbContext設定</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Data/ECommerceDbContext.cs
+public class ECommerceDbContext : DbContext
+{
+    public ECommerceDbContext(DbContextOptions&lt;ECommerceDbContext&gt; options)
+        : base(options) { }
+        
+    public DbSet&lt;Product&gt; Products { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity&lt;Product&gt;(entity =>
+        {
+            entity.Property(e => e.Price)
+                .HasColumnType("decimal(18,2)");
+        });
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h5 class="mt-3">ステップ4: コントローラー作成</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Controllers/ProductsController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly ECommerceDbContext _context;
+    
+    public ProductsController(ECommerceDbContext context)
+    {
+        _context = context;
+    }
+    
+    [HttpGet]
+    public async Task&lt;ActionResult&lt;List&lt;Product&gt;&gt;&gt; GetProducts()
+    {
+        return await _context.Products.ToListAsync();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-play-circle"></i> 実行してみよう</h6>
+                            <p class="mb-2">以下のコマンドでアプリケーションを起動し、<code>https://localhost:5001/api/products</code>にアクセスしてAPIの動作を確認してみましょう。</p>
+                            <code>dotnet run</code>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 次のステップ -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-arrow-right-circle"></i> 次に学ぶべきこと</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-diagram-3-fill text-primary display-4"></i>
+                            <h5>MVCパターン</h5>
+                            <p>Model-View-Controllerの分離による設計パターンを学習</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-database-fill text-success display-4"></i>
+                            <h5>Entity Framework</h5>
+                            <p>オブジェクトリレーショナルマッピング（ORM）を活用したデータアクセス</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-shield-check-fill text-warning display-4"></i>
+                            <h5>認証・認可</h5>
+                            <p>セキュアなECサイト構築のための認証システム</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- アクション -->
+<div class="text-center">
+    <div class="d-grid gap-2 d-md-block">
+        <button class="btn btn-success btn-lg me-2" onclick="app.markPageAsCompleted('aspnet-core')">
+            <i class="bi bi-check-circle"></i> 理解完了
+        </button>
+        <button class="btn btn-primary btn-lg" onclick="app.navigateNext()">
+            <i class="bi bi-arrow-right"></i> MVCパターンへ進む
+        </button>
+    </div>
+</div>
+
+<style>
+.request-flow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.flow-step {
+    display: flex;
+    align-items: center;
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 15px;
+    margin: 5px 0;
+    width: 100%;
+    max-width: 400px;
+}
+
+.flow-step .step-number {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.flow-arrow {
+    font-size: 1.5em;
+    color: #007bff;
+    margin: 5px 0;
+}
+
+.architecture-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.arch-layer {
+    width: 100%;
+    margin: 5px 0;
+}
+
+.layer-box {
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.layer-box small {
+    display: block;
+    margin-top: 5px;
+    opacity: 0.9;
+}
+
+.arch-arrow {
+    font-size: 1.5em;
+    color: #6c757d;
+    margin: 5px 0;
+}
+
+.demo-item {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+}
+
+.demo-item h6 {
+    color: #495057;
+    margin-bottom: 10px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.feature-item i {
+    font-size: 1.5em;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.feature-item h6 {
+    margin-bottom: 2px;
+    font-weight: 600;
+}
+
+.next-topic {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+.next-topic:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.next-topic h5 {
+    margin: 15px 0 10px 0;
+    color: #495057;
+}
+
+.performance-demo {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+</style>

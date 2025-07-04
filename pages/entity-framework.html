@@ -1,0 +1,1069 @@
+<div class="section-header">
+    <h1><i class="bi bi-database-gear"></i> Entity Framework - データアクセスの革命</h1>
+    <p class="lead">なぜORMが必要なのか、Entity Frameworkがどのように複雑なデータベース操作を簡素化するのか、そして実際のECサイトでどう活用するのかを学習します</p>
+</div>
+
+<!-- なぜORMが必要なのか -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h2><i class="bi bi-exclamation-triangle-fill"></i> なぜORMが必要なのか？</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-x-circle text-danger"></i> 生SQLの問題点</h4>
+                        <div class="alert alert-warning">
+                            <h6>直接SQLを書く場合の課題：</h6>
+                            <ul class="mb-0">
+                                <li><strong>SQLインジェクション</strong> - セキュリティリスク</li>
+                                <li><strong>タイプセーフティの欠如</strong> - コンパイル時エラー検出不可</li>
+                                <li><strong>重複コード</strong> - CRUD操作の繰り返し</li>
+                                <li><strong>データベース依存</strong> - DB変更時の影響大</li>
+                                <li><strong>オブジェクトマッピング</strong> - 手動でのデータ変換</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="code-block mt-3">
+                            <h6>❌ 生SQLの例（危険！）</h6>
+                            <pre><code class="language-csharp">// 危険な生SQL実装
+public class ProductRepository
+{
+    private readonly string _connectionString;
+    
+    public async Task&lt;List&lt;Product&gt;&gt; GetProductsByCategory(string categoryName)
+    {
+        var products = new List&lt;Product&gt;();
+        
+        // SQLインジェクションの危険性
+        var sql = $"SELECT * FROM Products p INNER JOIN Categories c ON p.CategoryId = c.Id WHERE c.Name = '{categoryName}'";
+        
+        using var connection = new SqlConnection(_connectionString);
+        using var command = new SqlCommand(sql, connection);
+        
+        await connection.OpenAsync();
+        using var reader = await command.ExecuteReaderAsync();
+        
+        while (await reader.ReadAsync())
+        {
+            // 手動でのオブジェクトマッピング（エラーが起きやすい）
+            var product = new Product
+            {
+                Id = reader.GetInt32("Id"),
+                Name = reader.GetString("Name"),
+                Price = reader.GetDecimal("Price"),
+                Stock = reader.GetInt32("Stock"),
+                // カラム名の間違いやNULL値でエラーが発生
+                CategoryId = reader.IsDBNull("CategoryId") ? 0 : reader.GetInt32("CategoryId")
+            };
+            products.Add(product);
+        }
+        
+        return products;
+    }
+    
+    public async Task&lt;Product&gt; CreateProduct(Product product)
+    {
+        // 長いSQL文とパラメータ設定
+        var sql = @"INSERT INTO Products (Name, Description, Price, Stock, CategoryId, CreatedAt) 
+                   VALUES (@Name, @Description, @Price, @Stock, @CategoryId, @CreatedAt);
+                   SELECT CAST(SCOPE_IDENTITY() as int)";
+        
+        using var connection = new SqlConnection(_connectionString);
+        using var command = new SqlCommand(sql, connection);
+        
+        // パラメータを手動で設定（間違いやすい）
+        command.Parameters.AddWithValue("@Name", product.Name ?? DBNull.Value);
+        command.Parameters.AddWithValue("@Description", product.Description ?? DBNull.Value);
+        command.Parameters.AddWithValue("@Price", product.Price);
+        command.Parameters.AddWithValue("@Stock", product.Stock);
+        command.Parameters.AddWithValue("@CategoryId", product.CategoryId);
+        command.Parameters.AddWithValue("@CreatedAt", DateTime.UtcNow);
+        
+        await connection.OpenAsync();
+        var id = (int)await command.ExecuteScalarAsync();
+        product.Id = id;
+        
+        return product;
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-check-circle text-success"></i> Entity Frameworkの解決策</h4>
+                        <div class="alert alert-success">
+                            <h6>Entity Frameworkの利点：</h6>
+                            <ul class="mb-0">
+                                <li><strong>タイプセーフ</strong> - コンパイル時エラー検出</li>
+                                <li><strong>自動SQLインジェクション対策</strong> - パラメータ化クエリ</li>
+                                <li><strong>自動マッピング</strong> - オブジェクト⇔データベース</li>
+                                <li><strong>LINQ統合</strong> - C#らしいクエリ記述</li>
+                                <li><strong>DB非依存</strong> - プロバイダーで切り替え</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="orm-benefits mb-3">
+                            <div class="benefit-flow">
+                                <div class="flow-item">
+                                    <i class="bi bi-code text-primary"></i>
+                                    <span>C#コード</span>
+                                </div>
+                                <div class="flow-arrow">→</div>
+                                <div class="flow-item">
+                                    <i class="bi bi-gear text-warning"></i>
+                                    <span>EF Core</span>
+                                </div>
+                                <div class="flow-arrow">→</div>
+                                <div class="flow-item">
+                                    <i class="bi bi-database text-success"></i>
+                                    <span>SQL</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="code-block">
+                            <h6>✅ Entity Frameworkの同等機能</h6>
+                            <pre><code class="language-csharp">// Entity Frameworkを使用（安全で簡潔）
+public class ProductRepository : IProductRepository
+{
+    private readonly ECommerceDbContext _context;
+    
+    public ProductRepository(ECommerceDbContext context)
+    {
+        _context = context;
+    }
+    
+    public async Task&lt;List&lt;Product&gt;&gt; GetProductsByCategory(string categoryName)
+    {
+        // LINQ - タイプセーフで読みやすい
+        return await _context.Products
+            .Include(p => p.Category)  // リレーション自動読み込み
+            .Where(p => p.Category.Name == categoryName)  // SQLインジェクション対策済み
+            .OrderBy(p => p.Name)
+            .ToListAsync();
+    }
+    
+    public async Task&lt;Product&gt; CreateProduct(Product product)
+    {
+        // シンプルな操作
+        _context.Products.Add(product);
+        await _context.SaveChangesAsync();  // 自動的にSQL生成・実行
+        return product;  // IDも自動で設定される
+    }
+    
+    public async Task&lt;Product?&gt; GetByIdAsync(int id)
+    {
+        return await _context.Products
+            .Include(p => p.Category)
+            .Include(p => p.Reviews)
+            .FirstOrDefaultAsync(p => p.Id == id);
+    }
+    
+    public async Task UpdateAsync(Product product)
+    {
+        _context.Products.Update(product);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task DeleteAsync(int id)
+    {
+        var product = await _context.Products.FindAsync(id);
+        if (product != null)
+        {
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- どのようにEntity Frameworkが動作するのか -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h2><i class="bi bi-gear-wide-connected"></i> どのようにEntity Frameworkが動作するのか？</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-diagram-3 text-primary"></i> アーキテクチャ構成</h4>
+                        <div class="ef-architecture">
+                            <div class="arch-layer">
+                                <div class="layer-box bg-primary text-white">
+                                    アプリケーション層
+                                    <small>Controllers, Services</small>
+                                </div>
+                            </div>
+                            <div class="arch-arrow">⬇</div>
+                            <div class="arch-layer">
+                                <div class="layer-box bg-success text-white">
+                                    Entity Framework Core
+                                    <small>DbContext, DbSet, LINQ</small>
+                                </div>
+                            </div>
+                            <div class="arch-arrow">⬇</div>
+                            <div class="arch-layer">
+                                <div class="layer-box bg-warning text-dark">
+                                    データベースプロバイダー
+                                    <small>SQL Server, PostgreSQL, SQLite</small>
+                                </div>
+                            </div>
+                            <div class="arch-arrow">⬇</div>
+                            <div class="arch-layer">
+                                <div class="layer-box bg-secondary text-white">
+                                    データベース
+                                    <small>テーブル、リレーション</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-database text-success"></i> DbContextの設定</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// ECommerceDbContext.cs
+public class ECommerceDbContext : DbContext
+{
+    public ECommerceDbContext(DbContextOptions&lt;ECommerceDbContext&gt; options)
+        : base(options) { }
+    
+    // エンティティセット（テーブル）
+    public DbSet&lt;Product&gt; Products { get; set; }
+    public DbSet&lt;Category&gt; Categories { get; set; }
+    public DbSet&lt;User&gt; Users { get; set; }
+    public DbSet&lt;Order&gt; Orders { get; set; }
+    public DbSet&lt;OrderItem&gt; OrderItems { get; set; }
+    public DbSet&lt;Review&gt; Reviews { get; set; }
+    
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // エンティティの設定
+        ConfigureProductEntity(modelBuilder);
+        ConfigureCategoryEntity(modelBuilder);
+        ConfigureOrderEntity(modelBuilder);
+        ConfigureUserEntity(modelBuilder);
+        
+        base.OnModelCreating(modelBuilder);
+    }
+    
+    private void ConfigureProductEntity(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity&lt;Product&gt;(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            entity.Property(e => e.Price)
+                .HasColumnType("decimal(18,2)");
+            entity.Property(e => e.CreatedAt)
+                .HasDefaultValueSql("GETUTCDATE()");
+                
+            // リレーション設定
+            entity.HasOne(p => p.Category)
+                .WithMany(c => c.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-boxes text-warning"></i> エンティティ定義</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Domain Entities
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+    public int CategoryId { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    
+    // ナビゲーションプロパティ
+    public Category Category { get; set; } = null!;
+    public ICollection&lt;OrderItem&gt; OrderItems { get; set; } = new List&lt;OrderItem&gt;();
+    public ICollection&lt;Review&gt; Reviews { get; set; } = new List&lt;Review&gt;();
+}
+
+public class Category
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public bool IsActive { get; set; } = true;
+    
+    // ナビゲーションプロパティ
+    public ICollection&lt;Product&gt; Products { get; set; } = new List&lt;Product&gt;();
+}
+
+public class Order
+{
+    public int Id { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public DateTime OrderDate { get; set; }
+    public decimal TotalAmount { get; set; }
+    public OrderStatus Status { get; set; }
+    public string ShippingAddress { get; set; } = string.Empty;
+    
+    // ナビゲーションプロパティ
+    public User User { get; set; } = null!;
+    public ICollection&lt;OrderItem&gt; OrderItems { get; set; } = new List&lt;OrderItem&gt;();
+}
+
+public class OrderItem
+{
+    public int Id { get; set; }
+    public int OrderId { get; set; }
+    public int ProductId { get; set; }
+    public int Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+    
+    // ナビゲーションプロパティ
+    public Order Order { get; set; } = null!;
+    public Product Product { get; set; } = null!;
+}
+
+public enum OrderStatus
+{
+    Pending,
+    Confirmed,
+    Shipped,
+    Delivered,
+    Cancelled
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実際のECサイトでの実装例 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h2><i class="bi bi-shop"></i> 実際のECサイトでの実装例</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-search text-primary"></i> 高度な検索機能</h4>
+                        
+                        <div class="implementation-example">
+                            <h6>複雑なクエリもLINQで簡潔に</h6>
+                            <div class="code-block">
+                                <pre><code class="language-csharp">public async Task&lt;PagedResult&lt;Product&gt;&gt; SearchProducts(ProductSearchRequest request)
+{
+    var query = _context.Products
+        .Include(p => p.Category)
+        .Include(p => p.Reviews)
+        .AsQueryable();
+    
+    // 条件による絞り込み
+    if (!string.IsNullOrEmpty(request.Keyword))
+    {
+        query = query.Where(p => 
+            p.Name.Contains(request.Keyword) || 
+            p.Description.Contains(request.Keyword));
+    }
+    
+    if (request.CategoryId.HasValue)
+    {
+        query = query.Where(p => p.CategoryId == request.CategoryId.Value);
+    }
+    
+    if (request.MinPrice.HasValue)
+    {
+        query = query.Where(p => p.Price >= request.MinPrice.Value);
+    }
+    
+    if (request.MaxPrice.HasValue)
+    {
+        query = query.Where(p => p.Price <= request.MaxPrice.Value);
+    }
+    
+    if (request.InStockOnly)
+    {
+        query = query.Where(p => p.Stock > 0);
+    }
+    
+    // ソート
+    query = request.SortBy?.ToLower() switch
+    {
+        "price" => request.SortDescending 
+            ? query.OrderByDescending(p => p.Price)
+            : query.OrderBy(p => p.Price),
+        "name" => request.SortDescending 
+            ? query.OrderByDescending(p => p.Name)
+            : query.OrderBy(p => p.Name),
+        "rating" => query.OrderByDescending(p => p.Reviews.Average(r => r.Rating)),
+        "created" => query.OrderByDescending(p => p.CreatedAt),
+        _ => query.OrderBy(p => p.Name)
+    };
+    
+    // 件数取得（SQLでCOUNT実行）
+    var totalCount = await query.CountAsync();
+    
+    // ページング（SQLでOFFSET/FETCH実行）
+    var products = await query
+        .Skip((request.Page - 1) * request.PageSize)
+        .Take(request.PageSize)
+        .ToListAsync();
+    
+    return new PagedResult&lt;Product&gt;
+    {
+        Items = products,
+        TotalCount = totalCount,
+        PageSize = request.PageSize,
+        CurrentPage = request.Page
+    };
+}</code></pre>
+                            </div>
+                            
+                            <h6>生成される最適化されたSQL</h6>
+                            <div class="code-block">
+                                <pre><code class="language-sql">-- Entity Frameworkが自動生成するSQL
+SELECT [p].[Id], [p].[Name], [p].[Description], [p].[Price], [p].[Stock],
+       [c].[Id], [c].[Name], [c].[Description]
+FROM [Products] AS [p]
+INNER JOIN [Categories] AS [c] ON [p].[CategoryId] = [c].[Id]
+LEFT JOIN [Reviews] AS [r] ON [p].[Id] = [r].[ProductId]
+WHERE ([p].[Name] LIKE @__keyword_0 OR [p].[Description] LIKE @__keyword_0)
+  AND [p].[CategoryId] = @__categoryId_1
+  AND [p].[Price] >= @__minPrice_2
+  AND [p].[Price] <= @__maxPrice_3
+  AND [p].[Stock] > 0
+ORDER BY [p].[Price]
+OFFSET @__p_4 ROWS FETCH NEXT @__take_5 ROWS ONLY</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-receipt text-info"></i> 注文処理とトランザクション</h4>
+                        
+                        <div class="implementation-example">
+                            <h6>複雑なビジネスロジックも安全に</h6>
+                            <div class="code-block">
+                                <pre><code class="language-csharp">public async Task&lt;Order&gt; CreateOrderAsync(string userId, List&lt;OrderItemRequest&gt; items)
+{
+    // トランザクション開始
+    using var transaction = await _context.Database.BeginTransactionAsync();
+    
+    try
+    {
+        var order = new Order
+        {
+            UserId = userId,
+            OrderDate = DateTime.UtcNow,
+            Status = OrderStatus.Pending
+        };
+        
+        decimal totalAmount = 0;
+        
+        foreach (var itemRequest in items)
+        {
+            // 商品情報とロック取得
+            var product = await _context.Products
+                .FirstOrDefaultAsync(p => p.Id == itemRequest.ProductId);
+                
+            if (product == null)
+                throw new ProductNotFoundException($"Product {itemRequest.ProductId} not found");
+            
+            // 在庫チェック
+            if (product.Stock < itemRequest.Quantity)
+                throw new InsufficientStockException(
+                    $"Product {product.Name} has insufficient stock. Available: {product.Stock}, Requested: {itemRequest.Quantity}");
+            
+            // 在庫減少
+            product.Stock -= itemRequest.Quantity;
+            product.UpdatedAt = DateTime.UtcNow;
+            
+            // 注文明細作成
+            var orderItem = new OrderItem
+            {
+                ProductId = product.Id,
+                Quantity = itemRequest.Quantity,
+                UnitPrice = product.Price
+            };
+            
+            order.OrderItems.Add(orderItem);
+            totalAmount += orderItem.UnitPrice * orderItem.Quantity;
+        }
+        
+        order.TotalAmount = totalAmount;
+        
+        // データベースに保存
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+        
+        // 在庫アラートチェック
+        await CheckLowStockAlerts();
+        
+        // トランザクションコミット
+        await transaction.CommitAsync();
+        
+        return order;
+    }
+    catch
+    {
+        // エラー時はロールバック
+        await transaction.RollbackAsync();
+        throw;
+    }
+}
+
+private async Task CheckLowStockAlerts()
+{
+    var lowStockProducts = await _context.Products
+        .Where(p => p.Stock <= 10 && p.Stock > 0)
+        .ToListAsync();
+        
+    foreach (var product in lowStockProducts)
+    {
+        // アラート処理
+        _logger.LogWarning($"Low stock alert for product {product.Name}: {product.Stock} remaining");
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-graph-up text-warning"></i> 売上レポート機能</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">public async Task&lt;SalesReport&gt; GetSalesReport(DateTime from, DateTime to)
+{
+    var salesData = await _context.Orders
+        .Where(o => o.OrderDate >= from && o.OrderDate <= to && o.Status != OrderStatus.Cancelled)
+        .Include(o => o.OrderItems)
+            .ThenInclude(oi => oi.Product)
+                .ThenInclude(p => p.Category)
+        .GroupBy(o => o.OrderDate.Date)
+        .Select(g => new DailySales
+        {
+            Date = g.Key,
+            OrderCount = g.Count(),
+            TotalRevenue = g.Sum(o => o.TotalAmount),
+            AverageOrderValue = g.Average(o => o.TotalAmount)
+        })
+        .OrderBy(ds => ds.Date)
+        .ToListAsync();
+    
+    var topProducts = await _context.OrderItems
+        .Where(oi => oi.Order.OrderDate >= from && 
+                    oi.Order.OrderDate <= to && 
+                    oi.Order.Status != OrderStatus.Cancelled)
+        .GroupBy(oi => new { oi.ProductId, oi.Product.Name })
+        .Select(g => new ProductSales
+        {
+            ProductId = g.Key.ProductId,
+            ProductName = g.Key.Name,
+            TotalQuantity = g.Sum(oi => oi.Quantity),
+            TotalRevenue = g.Sum(oi => oi.UnitPrice * oi.Quantity)
+        })
+        .OrderByDescending(ps => ps.TotalRevenue)
+        .Take(10)
+        .ToListAsync();
+    
+    return new SalesReport
+    {
+        Period = $"{from:yyyy-MM-dd} to {to:yyyy-MM-dd}",
+        DailySales = salesData,
+        TopProducts = topProducts,
+        TotalRevenue = salesData.Sum(ds => ds.TotalRevenue),
+        TotalOrders = salesData.Sum(ds => ds.OrderCount)
+    };
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-lightning text-danger"></i> パフォーマンス最適化</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// 効率的なデータ読み込み
+public async Task&lt;List&lt;ProductListDto&gt;&gt; GetProductsOptimized()
+{
+    // 必要なカラムのみ取得（Projection）
+    return await _context.Products
+        .Where(p => p.Stock > 0)
+        .Select(p => new ProductListDto
+        {
+            Id = p.Id,
+            Name = p.Name,
+            Price = p.Price,
+            CategoryName = p.Category.Name,
+            AverageRating = p.Reviews.Any() 
+                ? p.Reviews.Average(r => r.Rating) 
+                : 0,
+            ReviewCount = p.Reviews.Count()
+        })
+        .ToListAsync();
+}
+
+// バッチ処理での一括更新
+public async Task UpdateProductStockBatch(List&lt;StockUpdate&gt; updates)
+{
+    var productIds = updates.Select(u => u.ProductId).ToList();
+    var products = await _context.Products
+        .Where(p => productIds.Contains(p.Id))
+        .ToListAsync();
+    
+    foreach (var update in updates)
+    {
+        var product = products.FirstOrDefault(p => p.Id == update.ProductId);
+        if (product != null)
+        {
+            product.Stock = update.NewStock;
+            product.UpdatedAt = DateTime.UtcNow;
+        }
+    }
+    
+    // 一度に全て保存（効率的）
+    await _context.SaveChangesAsync();
+}
+
+// 非同期ストリーミング（大量データ処理）
+public async IAsyncEnumerable&lt;Product&gt; GetAllProductsStream()
+{
+    await foreach (var product in _context.Products.AsAsyncEnumerable())
+    {
+        yield return product;
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- マイグレーションとデータベース管理 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-arrow-repeat"></i> マイグレーションとデータベース管理</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-database-add"></i> マイグレーションの作成と適用</h5>
+                        <div class="code-block">
+                            <pre><code class="language-bash"># 最初のマイグレーション作成
+dotnet ef migrations add InitialCreate
+
+# データベース更新
+dotnet ef database update
+
+# 新しいマイグレーション（カラム追加）
+dotnet ef migrations add AddProductDescription
+
+# マイグレーション履歴確認
+dotnet ef migrations list
+
+# 特定のマイグレーションまで戻す
+dotnet ef database update 20240101000000_InitialCreate
+
+# マイグレーション削除（未適用のみ）
+dotnet ef migrations remove</code></pre>
+                        </div>
+                        
+                        <div class="migration-flow mt-3">
+                            <div class="flow-step">
+                                <i class="bi bi-file-code"></i>
+                                <span>コード変更</span>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <i class="bi bi-plus-circle"></i>
+                                <span>マイグレーション作成</span>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <i class="bi bi-database"></i>
+                                <span>DB更新</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-seed"></i> データシーディング</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// DbContext内でのデータ初期化
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    // カテゴリのシードデータ
+    modelBuilder.Entity&lt;Category&gt;().HasData(
+        new Category { Id = 1, Name = "Electronics", Description = "電子機器" },
+        new Category { Id = 2, Name = "Books", Description = "書籍" },
+        new Category { Id = 3, Name = "Clothing", Description = "衣類" }
+    );
+    
+    // 商品のシードデータ
+    modelBuilder.Entity&lt;Product&gt;().HasData(
+        new Product 
+        { 
+            Id = 1, 
+            Name = "iPhone 15", 
+            Description = "最新のスマートフォン",
+            Price = 124800,
+            Stock = 50,
+            CategoryId = 1,
+            CreatedAt = DateTime.UtcNow
+        },
+        new Product 
+        { 
+            Id = 2, 
+            Name = "MacBook Pro", 
+            Description = "高性能ノートPC",
+            Price = 298000,
+            Stock = 20,
+            CategoryId = 1,
+            CreatedAt = DateTime.UtcNow
+        }
+    );
+    
+    base.OnModelCreating(modelBuilder);
+}
+
+// 開発環境での動的シーディング
+public static async Task SeedDevelopmentData(ECommerceDbContext context)
+{
+    if (await context.Products.AnyAsync())
+        return; // 既にデータが存在する場合は何もしない
+        
+    var categories = new List&lt;Category&gt;
+    {
+        new Category { Name = "スマートフォン", Description = "最新のモバイルデバイス" },
+        new Category { Name = "ラップトップ", Description = "ポータブルコンピュータ" }
+    };
+    
+    context.Categories.AddRange(categories);
+    await context.SaveChangesAsync();
+    
+    var products = new List&lt;Product&gt;
+    {
+        new Product 
+        { 
+            Name = "Galaxy S24", 
+            Price = 119800, 
+            Stock = 30, 
+            CategoryId = categories[0].Id 
+        },
+        new Product 
+        { 
+            Name = "ThinkPad X1", 
+            Price = 185000, 
+            Stock = 15, 
+            CategoryId = categories[1].Id 
+        }
+    };
+    
+    context.Products.AddRange(products);
+    await context.SaveChangesAsync();
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実践演習 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-laptop"></i> ハンズオン: Entity Framework実装</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-lightbulb"></i> 課題：ECサイトのデータアクセス層を実装</h6>
+                    <p>Entity Frameworkを使用して、以下の機能を実装してみましょう：</p>
+                    <ul class="mb-0">
+                        <li>Product、Category、Order、User エンティティの定義</li>
+                        <li>DbContextの設定とリレーション定義</li>
+                        <li>Repository パターンの実装</li>
+                        <li>マイグレーションの作成と適用</li>
+                        <li>複雑なクエリの実装（検索、集計、レポート）</li>
+                    </ul>
+                </div>
+                
+                <div class="implementation-guide">
+                    <h5>実装ガイド</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="guide-step">
+                                <h6>1. Entity Framework設定</h6>
+                                <div class="code-block">
+                                    <pre><code class="language-bash"># NuGetパッケージインストール
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Tools
+dotnet add package Microsoft.EntityFrameworkCore.Design</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="guide-step">
+                                <h6>2. 接続文字列設定</h6>
+                                <div class="code-block">
+                                    <pre><code class="language-json">// appsettings.json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=ECommerceDB;Trusted_Connection=true;MultipleActiveResultSets=true"
+  }
+}</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="guide-step">
+                                <h6>3. DIコンテナ登録</h6>
+                                <div class="code-block">
+                                    <pre><code class="language-csharp">// Program.cs
+builder.Services.AddDbContext&lt;ECommerceDbContext&gt;(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped&lt;IProductRepository, ProductRepository&gt;();
+builder.Services.AddScoped&lt;IOrderRepository, OrderRepository&gt;();</code></pre>
+                                </div>
+                            </div>
+                            
+                            <div class="guide-step">
+                                <h6>4. マイグレーション実行</h6>
+                                <div class="code-block">
+                                    <pre><code class="language-bash"># マイグレーション作成
+dotnet ef migrations add InitialCreate
+
+# データベース作成・更新
+dotnet ef database update</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 次のステップ -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-arrow-right-circle"></i> 次に学ぶべきこと</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-diagram-2 text-primary display-4"></i>
+                            <h5>データベース設計</h5>
+                            <p>ECサイトに最適化されたデータベース構造の設計手法</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-shield-lock text-success display-4"></i>
+                            <h5>認証・認可</h5>
+                            <p>ASP.NET Core Identityによるセキュアなユーザー管理</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-cart text-warning display-4"></i>
+                            <h5>ECサイト構築</h5>
+                            <p>学習した技術を統合した実践的なプロジェクト開発</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- アクション -->
+<div class="text-center">
+    <div class="d-grid gap-2 d-md-block">
+        <button class="btn btn-success btn-lg me-2" onclick="app.markPageAsCompleted('entity-framework')">
+            <i class="bi bi-check-circle"></i> 理解完了
+        </button>
+        <button class="btn btn-primary btn-lg" onclick="app.navigateNext()">
+            <i class="bi bi-arrow-right"></i> データベース設計へ進む
+        </button>
+    </div>
+</div>
+
+<style>
+.ef-architecture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.arch-layer {
+    width: 100%;
+    margin: 5px 0;
+}
+
+.layer-box {
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.layer-box small {
+    display: block;
+    margin-top: 5px;
+    opacity: 0.9;
+}
+
+.arch-arrow {
+    font-size: 1.5em;
+    color: #6c757d;
+    margin: 5px 0;
+}
+
+.orm-benefits {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.benefit-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.flow-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    margin: 5px;
+    background: white;
+    border-radius: 8px;
+    min-width: 80px;
+}
+
+.flow-item i {
+    font-size: 1.5em;
+    margin-bottom: 5px;
+}
+
+.flow-arrow {
+    font-size: 1.2em;
+    color: #007bff;
+    margin: 0 10px;
+}
+
+.implementation-example h6 {
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 5px;
+    margin-bottom: 15px;
+}
+
+.migration-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    margin: 5px;
+    min-width: 120px;
+}
+
+.flow-step i {
+    font-size: 2em;
+    color: #007bff;
+    margin-bottom: 8px;
+}
+
+.flow-step span {
+    font-size: 0.9em;
+    font-weight: 500;
+    text-align: center;
+}
+
+.implementation-guide {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.guide-step {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.guide-step h6 {
+    color: #495057;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.next-topic {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    height: 100%;
+    transition: transform 0.2s;
+}
+
+.next-topic:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.next-topic h5 {
+    margin: 15px 0 10px 0;
+    color: #495057;
+}
+
+@media (max-width: 768px) {
+    .benefit-flow, .migration-flow {
+        flex-direction: column;
+    }
+    
+    .flow-arrow {
+        transform: rotate(90deg);
+        margin: 10px 0;
+    }
+}
+</style>

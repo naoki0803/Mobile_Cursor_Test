@@ -1,0 +1,899 @@
+<div class="section-header">
+    <h1><i class="bi bi-diagram-3"></i> MVCパターン - 責任分離による設計</h1>
+    <p class="lead">なぜアーキテクチャパターンが必要なのか、MVCがどのように問題を解決するのか、そして実際のECサイトでどう適用するのかを学習します</p>
+</div>
+
+<!-- なぜMVCパターンが必要なのか -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h2><i class="bi bi-exclamation-triangle-fill"></i> なぜアーキテクチャパターンが必要なのか？</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-emoji-frown text-danger"></i> 混在コードの問題</h4>
+                        <div class="alert alert-danger">
+                            <h6>すべてが一つのファイルに混在する場合：</h6>
+                            <ul class="mb-0">
+                                <li><strong>保守性の悪化</strong> - 修正箇所が分からない</li>
+                                <li><strong>テストの困難</strong> - 単体テストが書けない</li>
+                                <li><strong>再利用性の欠如</strong> - コードの重複が発生</li>
+                                <li><strong>チーム開発の阻害</strong> - 同じファイルを複数人が編集</li>
+                                <li><strong>スケーラビリティの低下</strong> - 機能追加が困難</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="code-block mt-3">
+                            <h6>❌ 悪い例：すべてが混在</h6>
+                            <pre><code class="language-csharp">// ProductPage.cs - すべてが混在（悪い例）
+public class ProductPage
+{
+    // データアクセス、ビジネスロジック、表示ロジックが混在
+    public void ShowProductList()
+    {
+        // データベース接続（データアクセス）
+        var connection = new SqlConnection("...");
+        connection.Open();
+        
+        // SQL実行（データアクセス）
+        var command = new SqlCommand("SELECT * FROM Products", connection);
+        var reader = command.ExecuteReader();
+        
+        var products = new List&lt;Product&gt;();
+        while (reader.Read())
+        {
+            var product = new Product
+            {
+                Id = (int)reader["Id"],
+                Name = reader["Name"].ToString(),
+                Price = (decimal)reader["Price"]
+            };
+            
+            // ビジネスロジック（価格計算）
+            if (product.Price > 10000)
+            {
+                product.Price *= 0.9m; // 10%割引
+            }
+            
+            products.Add(product);
+        }
+        
+        // HTML生成（表示ロジック）
+        Console.WriteLine("&lt;html&gt;&lt;body&gt;");
+        Console.WriteLine("&lt;h1&gt;商品一覧&lt;/h1&gt;");
+        foreach (var product in products)
+        {
+            Console.WriteLine($"&lt;div&gt;{product.Name} - ¥{product.Price:N0}&lt;/div&gt;");
+        }
+        Console.WriteLine("&lt;/body&gt;&lt;/html&gt;");
+        
+        connection.Close();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-emoji-smile text-success"></i> MVCによる解決</h4>
+                        <div class="alert alert-success">
+                            <h6>MVCパターンの利点：</h6>
+                            <ul class="mb-0">
+                                <li><strong>責任の分離</strong> - 各層が明確な役割を持つ</li>
+                                <li><strong>テスタビリティ</strong> - 独立したテストが可能</li>
+                                <li><strong>保守性</strong> - 修正箇所が特定しやすい</li>
+                                <li><strong>再利用性</strong> - ビジネスロジックの再利用</li>
+                                <li><strong>チーム開発</strong> - 並行開発が可能</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mvc-diagram mb-3">
+                            <div class="mvc-component model">
+                                <h6><i class="bi bi-database"></i> Model</h6>
+                                <small>データ・ビジネスロジック</small>
+                            </div>
+                            <div class="mvc-arrow">→</div>
+                            <div class="mvc-component controller">
+                                <h6><i class="bi bi-gear"></i> Controller</h6>
+                                <small>処理制御・調整</small>
+                            </div>
+                            <div class="mvc-arrow">→</div>
+                            <div class="mvc-component view">
+                                <h6><i class="bi bi-eye"></i> View</h6>
+                                <small>表示・UI</small>
+                            </div>
+                        </div>
+                        
+                        <div class="code-block">
+                            <h6>✅ 良い例：MVCで分離</h6>
+                            <pre><code class="language-csharp">// Controller - 処理制御
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+    
+    public ProductsController(IProductService productService)
+    {
+        _productService = productService;
+    }
+    
+    [HttpGet]
+    public async Task&lt;ActionResult&lt;List&lt;ProductDto&gt;&gt;&gt; GetProducts()
+    {
+        var products = await _productService.GetAllAsync();
+        return Ok(products); // Viewに渡す
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- どのようにMVCが動作するのか -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-primary text-white">
+                <h2><i class="bi bi-gear-wide-connected"></i> どのようにMVCが動作するのか？</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-database text-success"></i> Model（モデル）</h4>
+                        <div class="component-description">
+                            <p><strong>責任：</strong>データとビジネスロジック</p>
+                            <ul>
+                                <li>データの構造定義</li>
+                                <li>ビジネスルールの実装</li>
+                                <li>データの検証</li>
+                                <li>データベースとの相互作用</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="code-block">
+                            <h6>Modelの実装例</h6>
+                            <pre><code class="language-csharp">// Domain Model
+public class Product
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public int Stock { get; set; }
+    public int CategoryId { get; set; }
+    
+    // ビジネスロジック
+    public decimal CalculateDiscountedPrice(decimal discountRate)
+    {
+        if (discountRate < 0 || discountRate > 1)
+            throw new ArgumentException("Invalid discount rate");
+            
+        return Price * (1 - discountRate);
+    }
+    
+    public bool IsInStock => Stock > 0;
+    public bool IsExpensive => Price > 50000;
+}
+
+// Service（ビジネスロジック）
+public interface IProductService
+{
+    Task&lt;List&lt;Product&gt;&gt; GetAllAsync();
+    Task&lt;Product&gt; GetByIdAsync(int id);
+    Task&lt;Product&gt; CreateAsync(CreateProductRequest request);
+    Task UpdateAsync(int id, UpdateProductRequest request);
+    Task DeleteAsync(int id);
+}
+
+public class ProductService : IProductService
+{
+    private readonly IProductRepository _repository;
+    
+    public ProductService(IProductRepository repository)
+    {
+        _repository = repository;
+    }
+    
+    public async Task&lt;List&lt;Product&gt;&gt; GetAllAsync()
+    {
+        var products = await _repository.GetAllAsync();
+        
+        // ビジネスロジック：在庫切れ商品は最後に表示
+        return products
+            .OrderByDescending(p => p.IsInStock)
+            .ThenBy(p => p.Name)
+            .ToList();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-gear text-primary"></i> Controller（コントローラー）</h4>
+                        <div class="component-description">
+                            <p><strong>責任：</strong>リクエスト処理と制御</p>
+                            <ul>
+                                <li>HTTPリクエストの受信</li>
+                                <li>入力データの検証</li>
+                                <li>適切なModelの呼び出し</li>
+                                <li>結果をViewに渡す</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="code-block">
+                            <h6>Controllerの実装例</h6>
+                            <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+    private readonly ILogger&lt;ProductsController&gt; _logger;
+    
+    public ProductsController(
+        IProductService productService,
+        ILogger&lt;ProductsController&gt; logger)
+    {
+        _productService = productService;
+        _logger = logger;
+    }
+    
+    [HttpGet]
+    public async Task&lt;ActionResult&lt;List&lt;ProductDto&gt;&gt;&gt; GetProducts(
+        [FromQuery] ProductFilter filter)
+    {
+        try
+        {
+            _logger.LogInformation("商品一覧を取得中...");
+            
+            // 入力検証
+            if (filter.PageSize > 100)
+            {
+                return BadRequest("ページサイズは100以下にしてください");
+            }
+            
+            // Modelを呼び出し
+            var products = await _productService.GetFilteredAsync(filter);
+            
+            // DTOに変換（Viewに渡すデータ形式）
+            var productDtos = products.Select(p => new ProductDto
+            {
+                Id = p.Id,
+                Name = p.Name,
+                Price = p.Price,
+                IsInStock = p.IsInStock,
+                FormattedPrice = $"¥{p.Price:N0}"
+            }).ToList();
+            
+            return Ok(productDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "商品取得中にエラーが発生");
+            return StatusCode(500, "内部エラーが発生しました");
+        }
+    }
+    
+    [HttpPost]
+    public async Task&lt;ActionResult&lt;ProductDto&gt;&gt; CreateProduct(
+        [FromBody] CreateProductRequest request)
+    {
+        // モデル検証
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        
+        // Modelでビジネスロジック実行
+        var product = await _productService.CreateAsync(request);
+        
+        // レスポンス生成
+        return CreatedAtAction(
+            nameof(GetProduct),
+            new { id = product.Id },
+            new ProductDto { /* ... */ });
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-eye text-info"></i> View（ビュー）</h4>
+                        <div class="component-description">
+                            <p><strong>責任：</strong>ユーザーインターフェース</p>
+                            <ul>
+                                <li>データの表示</li>
+                                <li>ユーザー入力の受付</li>
+                                <li>UIの状態管理</li>
+                                <li>レスポンシブデザイン</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="code-block">
+                            <h6>View（DTO）の実装例</h6>
+                            <pre><code class="language-csharp">// Data Transfer Object (DTO)
+public class ProductDto
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public decimal Price { get; set; }
+    public string FormattedPrice { get; set; } = string.Empty;
+    public bool IsInStock { get; set; }
+    public string StockStatus => IsInStock ? "在庫あり" : "在庫切れ";
+    public string StockClass => IsInStock ? "text-success" : "text-danger";
+}
+
+// リクエストモデル
+public class CreateProductRequest
+{
+    [Required(ErrorMessage = "商品名は必須です")]
+    [StringLength(100, ErrorMessage = "商品名は100文字以内で入力してください")]
+    public string Name { get; set; } = string.Empty;
+    
+    [Required(ErrorMessage = "価格は必須です")]
+    [Range(1, 999999, ErrorMessage = "価格は1円以上999,999円以下で入力してください")]
+    public decimal Price { get; set; }
+    
+    [Range(0, 9999, ErrorMessage = "在庫数は0以上9999以下で入力してください")]
+    public int Stock { get; set; }
+}
+
+// レスポンスモデル
+public class ProductListResponse
+{
+    public List&lt;ProductDto&gt; Products { get; set; } = new();
+    public int TotalCount { get; set; }
+    public int PageSize { get; set; }
+    public int CurrentPage { get; set; }
+    public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+    public bool HasNextPage => CurrentPage &lt; TotalPages;
+    public bool HasPreviousPage => CurrentPage > 1;
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実際のECサイトでの実装例 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h2><i class="bi bi-shop"></i> 実際のECサイトでの実装例</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-cart"></i> ショッピングカート機能</h4>
+                        
+                        <div class="implementation-example">
+                            <h6>1. Model（ビジネスロジック）</h6>
+                            <div class="code-block">
+                                <pre><code class="language-csharp">public class Cart
+{
+    public int Id { get; set; }
+    public string UserId { get; set; } = string.Empty;
+    public List&lt;CartItem&gt; Items { get; set; } = new();
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    
+    // ビジネスロジック
+    public decimal TotalAmount => Items.Sum(i => i.TotalPrice);
+    public int TotalQuantity => Items.Sum(i => i.Quantity);
+    
+    public void AddItem(Product product, int quantity)
+    {
+        var existingItem = Items.FirstOrDefault(i => i.ProductId == product.Id);
+        if (existingItem != null)
+        {
+            existingItem.Quantity += quantity;
+        }
+        else
+        {
+            Items.Add(new CartItem
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                UnitPrice = product.Price,
+                Quantity = quantity
+            });
+        }
+        UpdatedAt = DateTime.UtcNow;
+    }
+    
+    public bool RemoveItem(int productId)
+    {
+        var item = Items.FirstOrDefault(i => i.ProductId == productId);
+        if (item != null)
+        {
+            Items.Remove(item);
+            UpdatedAt = DateTime.UtcNow;
+            return true;
+        }
+        return false;
+    }
+}
+
+public class CartItem
+{
+    public int ProductId { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public decimal UnitPrice { get; set; }
+    public int Quantity { get; set; }
+    public decimal TotalPrice => UnitPrice * Quantity;
+}</code></pre>
+                            </div>
+                            
+                            <h6>2. Controller（制御層）</h6>
+                            <div class="code-block">
+                                <pre><code class="language-csharp">[ApiController]
+[Route("api/[controller]")]
+[Authorize] // 認証必須
+public class CartController : ControllerBase
+{
+    private readonly ICartService _cartService;
+    private readonly IProductService _productService;
+    
+    public CartController(ICartService cartService, IProductService productService)
+    {
+        _cartService = cartService;
+        _productService = productService;
+    }
+    
+    [HttpGet]
+    public async Task&lt;ActionResult&lt;CartDto&gt;&gt; GetCart()
+    {
+        var userId = User.GetUserId();
+        var cart = await _cartService.GetByUserIdAsync(userId);
+        
+        if (cart == null)
+        {
+            return Ok(new CartDto { Items = new List&lt;CartItemDto&gt;() });
+        }
+        
+        return Ok(MapToDto(cart));
+    }
+    
+    [HttpPost("items")]
+    public async Task&lt;ActionResult&gt; AddToCart([FromBody] AddToCartRequest request)
+    {
+        // 入力検証
+        if (request.Quantity <= 0)
+        {
+            return BadRequest("数量は1以上を指定してください");
+        }
+        
+        var userId = User.GetUserId();
+        
+        // 商品の存在確認
+        var product = await _productService.GetByIdAsync(request.ProductId);
+        if (product == null)
+        {
+            return NotFound("商品が見つかりません");
+        }
+        
+        // 在庫確認
+        if (product.Stock < request.Quantity)
+        {
+            return BadRequest($"在庫が不足しています。在庫数: {product.Stock}");
+        }
+        
+        // カートに追加
+        await _cartService.AddItemAsync(userId, product, request.Quantity);
+        
+        return Ok(new { message = "カートに追加しました" });
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-credit-card"></i> 注文処理機能</h4>
+                        
+                        <div class="implementation-example">
+                            <h6>3. View（DTO・レスポンス）</h6>
+                            <div class="code-block">
+                                <pre><code class="language-csharp">public class CartDto
+{
+    public int Id { get; set; }
+    public List&lt;CartItemDto&gt; Items { get; set; } = new();
+    public decimal TotalAmount { get; set; }
+    public int TotalQuantity { get; set; }
+    public string FormattedTotal { get; set; } = string.Empty;
+    public bool IsEmpty => !Items.Any();
+}
+
+public class CartItemDto
+{
+    public int ProductId { get; set; }
+    public string ProductName { get; set; } = string.Empty;
+    public decimal UnitPrice { get; set; }
+    public int Quantity { get; set; }
+    public decimal TotalPrice { get; set; }
+    public string FormattedUnitPrice { get; set; } = string.Empty;
+    public string FormattedTotalPrice { get; set; } = string.Empty;
+}
+
+public class AddToCartRequest
+{
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "商品IDは1以上を指定してください")]
+    public int ProductId { get; set; }
+    
+    [Required]
+    [Range(1, 99, ErrorMessage = "数量は1～99の間で指定してください")]
+    public int Quantity { get; set; }
+}</code></pre>
+                            </div>
+                            
+                            <h6>実際のHTTPリクエスト例</h6>
+                            <div class="code-block">
+                                <pre><code class="language-json">// POST /api/cart/items
+{
+  "productId": 123,
+  "quantity": 2
+}
+
+// レスポンス
+{
+  "message": "カートに追加しました"
+}
+
+// GET /api/cart
+{
+  "id": 456,
+  "items": [
+    {
+      "productId": 123,
+      "productName": "ワイヤレスイヤホン",
+      "unitPrice": 15800,
+      "quantity": 2,
+      "totalPrice": 31600,
+      "formattedUnitPrice": "¥15,800",
+      "formattedTotalPrice": "¥31,600"
+    }
+  ],
+  "totalAmount": 31600,
+  "totalQuantity": 2,
+  "formattedTotal": "¥31,600",
+  "isEmpty": false
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="mvc-benefits">
+                            <h4><i class="bi bi-check-circle text-success"></i> MVCを使うことで得られる効果</h4>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="benefit-item">
+                                        <i class="bi bi-tools text-primary"></i>
+                                        <h6>保守性</h6>
+                                        <p>変更箇所が明確で、修正が容易</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="benefit-item">
+                                        <i class="bi bi-check2-square text-success"></i>
+                                        <h6>テスタビリティ</h6>
+                                        <p>各層を独立してテスト可能</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="benefit-item">
+                                        <i class="bi bi-people text-info"></i>
+                                        <h6>チーム開発</h6>
+                                        <p>役割分担による並行開発</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="benefit-item">
+                                        <i class="bi bi-arrow-repeat text-warning"></i>
+                                        <h6>再利用性</h6>
+                                        <p>ビジネスロジックの再利用</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実践演習 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-laptop"></i> ハンズオン: MVCパターンの実装</h3>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-lightbulb"></i> 課題：商品管理機能をMVCで実装</h6>
+                    <p>以下の機能を持つ商品管理APIをMVCパターンで実装してみましょう：</p>
+                    <ul class="mb-0">
+                        <li>商品一覧の取得</li>
+                        <li>商品詳細の取得</li>
+                        <li>商品の作成</li>
+                        <li>商品の更新</li>
+                        <li>商品の削除</li>
+                    </ul>
+                </div>
+                
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5>実装のステップ</h5>
+                        <div class="implementation-steps">
+                            <div class="step">
+                                <div class="step-header">
+                                    <span class="step-number">1</span>
+                                    <h6>Modelの実装</h6>
+                                </div>
+                                <div class="step-content">
+                                    <ul>
+                                        <li>Productエンティティクラス</li>
+                                        <li>IProductRepositoryインターフェース</li>
+                                        <li>ProductServiceクラス</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="step-arrow">→</div>
+                            <div class="step">
+                                <div class="step-header">
+                                    <span class="step-number">2</span>
+                                    <h6>Controllerの実装</h6>
+                                </div>
+                                <div class="step-content">
+                                    <ul>
+                                        <li>ProductsControllerクラス</li>
+                                        <li>HTTPメソッドとルーティング</li>
+                                        <li>エラーハンドリング</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="step-arrow">→</div>
+                            <div class="step">
+                                <div class="step-header">
+                                    <span class="step-number">3</span>
+                                    <h6>View（DTO）の実装</h6>
+                                </div>
+                                <div class="step-content">
+                                    <ul>
+                                        <li>リクエストDTO</li>
+                                        <li>レスポンスDTO</li>
+                                        <li>バリデーション</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 次のステップ -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="bi bi-arrow-right-circle"></i> 次に学ぶべきこと</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-database text-primary display-4"></i>
+                            <h5>Entity Framework</h5>
+                            <p>ORMを使用した効率的なデータアクセス層の実装</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-diagram-2 text-success display-4"></i>
+                            <h5>データベース設計</h5>
+                            <p>ECサイトに適したデータモデルの設計手法</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="next-topic">
+                            <i class="bi bi-shield-lock text-warning display-4"></i>
+                            <h5>認証・認可</h5>
+                            <p>セキュアなMVCアプリケーションの構築</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- アクション -->
+<div class="text-center">
+    <div class="d-grid gap-2 d-md-block">
+        <button class="btn btn-success btn-lg me-2" onclick="app.markPageAsCompleted('mvc-pattern')">
+            <i class="bi bi-check-circle"></i> 理解完了
+        </button>
+        <button class="btn btn-primary btn-lg" onclick="app.navigateNext()">
+            <i class="bi bi-arrow-right"></i> Entity Frameworkへ進む
+        </button>
+    </div>
+</div>
+
+<style>
+.mvc-diagram {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.mvc-component {
+    background: #f8f9fa;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+    min-width: 120px;
+    margin: 5px;
+}
+
+.mvc-component.model {
+    border-color: #28a745;
+    background: #d4edda;
+}
+
+.mvc-component.controller {
+    border-color: #007bff;
+    background: #d1ecf1;
+}
+
+.mvc-component.view {
+    border-color: #17a2b8;
+    background: #d4edda;
+}
+
+.mvc-arrow {
+    font-size: 1.5em;
+    color: #6c757d;
+    margin: 0 10px;
+}
+
+.component-description {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.component-description p {
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.implementation-example h6 {
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.mvc-benefits {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.benefit-item {
+    text-align: center;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    height: 100%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.benefit-item i {
+    font-size: 2em;
+    margin-bottom: 10px;
+    display: block;
+}
+
+.benefit-item h6 {
+    color: #495057;
+    margin-bottom: 8px;
+}
+
+.benefit-item p {
+    color: #6c757d;
+    font-size: 0.9em;
+    margin-bottom: 0;
+}
+
+.implementation-steps {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.step {
+    background: white;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    min-width: 200px;
+    text-align: center;
+}
+
+.step-header {
+    margin-bottom: 10px;
+}
+
+.step-number {
+    display: inline-block;
+    width: 30px;
+    height: 30px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    line-height: 30px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.step-header h6 {
+    color: #495057;
+    margin: 0;
+}
+
+.step-content ul {
+    text-align: left;
+    margin: 0;
+    padding-left: 20px;
+}
+
+.step-content li {
+    font-size: 0.9em;
+    color: #6c757d;
+    margin-bottom: 3px;
+}
+
+.step-arrow {
+    font-size: 1.5em;
+    color: #007bff;
+    align-self: center;
+    margin: 0 5px;
+}
+
+@media (max-width: 768px) {
+    .mvc-diagram {
+        flex-direction: column;
+    }
+    
+    .mvc-arrow {
+        transform: rotate(90deg);
+        margin: 10px 0;
+    }
+    
+    .implementation-steps {
+        flex-direction: column;
+    }
+    
+    .step-arrow {
+        transform: rotate(90deg);
+        margin: 10px 0;
+    }
+}
+</style>
