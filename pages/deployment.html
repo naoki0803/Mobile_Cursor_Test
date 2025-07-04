@@ -233,6 +233,421 @@ jobs:
     </div>
 </div>
 
+<!-- .NET アプリケーションの構造とデプロイメント基礎 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h2><i class="bi bi-building"></i> .NET アプリケーションの構造とデプロイメント基礎</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-file-earmark-binary"></i> DLLファイルとは</h4>
+                        <div class="alert alert-info">
+                            <p><strong>DLL（Dynamic Link Library）</strong>は、.NETアプリケーションでコンパイル済みのコードを含むライブラリファイルです。</p>
+                            <ul>
+                                <li><strong>実行可能コード</strong>: C#ソースコードがコンパイルされたバイナリ</li>
+                                <li><strong>メタデータ</strong>: 型情報、依存関係情報を含む</li>
+                                <li><strong>共有可能</strong>: 複数のアプリケーションで再利用可能</li>
+                                <li><strong>動的読み込み</strong>: 実行時に必要に応じて読み込み</li>
+                            </ul>
+                        </div>
+                        
+                        <h5><i class="bi bi-diagram-2"></i> プロジェクト構造の例</h5>
+                        <div class="code-block">
+                            <pre><code class="language-text">ECommerce.Solution/
+├── ECommerce.API/                  → ECommerce.API.dll
+│   ├── Controllers/
+│   ├── Program.cs
+│   └── ECommerce.API.csproj
+├── ECommerce.Core/                 → ECommerce.Core.dll
+│   ├── Entities/
+│   ├── Interfaces/
+│   └── ECommerce.Core.csproj
+├── ECommerce.Infrastructure/       → ECommerce.Infrastructure.dll
+│   ├── Data/
+│   ├── Repositories/
+│   └── ECommerce.Infrastructure.csproj
+└── ECommerce.Tests/               → ECommerce.Tests.dll
+    ├── UnitTests/
+    └── ECommerce.Tests.csproj</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-arrow-left-right"></i> プロジェクト間の依存関係</h5>
+                        <div class="dependency-diagram">
+                            <div class="dependency-layer">
+                                <div class="layer-box api">
+                                    <h6>ECommerce.API</h6>
+                                    <small>Webアプリケーション</small>
+                                </div>
+                            </div>
+                            <div class="dependency-arrow">↓</div>
+                            <div class="dependency-layer">
+                                <div class="layer-box infrastructure">
+                                    <h6>ECommerce.Infrastructure</h6>
+                                    <small>データアクセス・外部サービス</small>
+                                </div>
+                            </div>
+                            <div class="dependency-arrow">↓</div>
+                            <div class="dependency-layer">
+                                <div class="layer-box core">
+                                    <h6>ECommerce.Core</h6>
+                                    <small>ビジネスロジック・エンティティ</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-link-45deg"></i> DLL参照の仕組み</h4>
+                        <div class="code-block">
+                            <pre><code class="language-xml">&lt;!-- ECommerce.API.csproj --&gt;
+&lt;Project Sdk="Microsoft.NET.Sdk.Web"&gt;
+  &lt;PropertyGroup&gt;
+    &lt;TargetFramework&gt;net8.0&lt;/TargetFramework&gt;
+  &lt;/PropertyGroup&gt;
+  
+  &lt;ItemGroup&gt;
+    &lt;!-- プロジェクト参照 --&gt;
+    &lt;ProjectReference Include="..\ECommerce.Infrastructure\ECommerce.Infrastructure.csproj" /&gt;
+    &lt;ProjectReference Include="..\ECommerce.Core\ECommerce.Core.csproj" /&gt;
+  &lt;/ItemGroup&gt;
+&lt;/Project&gt;</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-copy"></i> デプロイ時のDLL配置</h5>
+                        <div class="alert alert-success">
+                            <p><strong>デプロイ時のDLL処理：</strong></p>
+                            <ol>
+                                <li><strong>依存関係解決</strong>: 参照されるDLLを自動検出</li>
+                                <li><strong>出力ディレクトリにコピー</strong>: 必要なDLLをすべて集約</li>
+                                <li><strong>実行時読み込み</strong>: アプリケーション起動時に自動読み込み</li>
+                            </ol>
+                        </div>
+                        
+                        <div class="code-block">
+                            <pre><code class="language-text"># dotnet publish後の出力構造
+publish/
+├── ECommerce.API.dll           # メインアプリケーション
+├── ECommerce.Core.dll          # ビジネスロジック
+├── ECommerce.Infrastructure.dll # データアクセス
+├── Microsoft.AspNetCore.dll    # フレームワーク
+├── Microsoft.EntityFrameworkCore.dll
+├── appsettings.json
+├── web.config
+└── wwwroot/</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-terminal"></i> ビルド・デプロイコマンド</h5>
+                        <div class="code-block">
+                            <pre><code class="language-bash"># 開発環境での実行
+dotnet run --project ECommerce.API
+
+# リリースビルド
+dotnet build -c Release
+
+# 発行（デプロイ用）
+dotnet publish -c Release -o ./publish
+
+# 発行されたアプリケーションの実行
+dotnet ./publish/ECommerce.API.dll</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 依存性注入とプロジェクト間通信 -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h2><i class="bi bi-puzzle"></i> 依存性注入とプロジェクト間通信</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-gear-wide-connected"></i> DIコンテナへの登録</h4>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// ECommerce.Infrastructure/ServiceRegistration.cs
+using Microsoft.Extensions.DependencyInjection;
+using ECommerce.Core.Interfaces;
+using ECommerce.Infrastructure.Repositories;
+
+namespace ECommerce.Infrastructure
+{
+    public static class ServiceRegistration
+    {
+        public static IServiceCollection AddInfrastructure(
+            this IServiceCollection services, 
+            string connectionString)
+        {
+            // データベースコンテキスト
+            services.AddDbContext&lt;ApplicationDbContext&gt;(options =&gt;
+                options.UseSqlServer(connectionString));
+            
+            // リポジトリの登録
+            services.AddScoped&lt;IProductRepository, ProductRepository&gt;();
+            services.AddScoped&lt;IOrderRepository, OrderRepository&gt;();
+            services.AddScoped&lt;IUserRepository, UserRepository&gt;();
+            
+            // 外部サービス
+            services.AddScoped&lt;IEmailService, EmailService&gt;();
+            services.AddScoped&lt;IPaymentService, PaymentService&gt;();
+            
+            return services;
+        }
+    }
+}</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-diagram-3"></i> APIプロジェクトでの利用</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// ECommerce.API/Program.cs
+using ECommerce.Infrastructure;
+using ECommerce.Core.Services;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// 接続文字列の取得
+var connectionString = builder.Configuration
+    .GetConnectionString("DefaultConnection");
+
+// サービス登録
+builder.Services.AddControllers();
+builder.Services.AddInfrastructure(connectionString);
+builder.Services.AddScoped&lt;IProductService, ProductService&gt;();
+
+var app = builder.Build();
+
+// パイプライン設定
+app.UseRouting();
+app.MapControllers();
+
+app.Run();</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-arrow-through-heart"></i> 実行時の動作</h4>
+                        <div class="di-flow">
+                            <div class="di-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h6>アプリケーション開始</h6>
+                                    <p>Program.csでDIコンテナを構築</p>
+                                </div>
+                            </div>
+                            <div class="di-arrow">↓</div>
+                            <div class="di-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h6>サービス登録</h6>
+                                    <p>Infrastructureの登録メソッドを呼び出し</p>
+                                </div>
+                            </div>
+                            <div class="di-arrow">↓</div>
+                            <div class="di-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h6>HTTP リクエスト</h6>
+                                    <p>コントローラーが依存関係を要求</p>
+                                </div>
+                            </div>
+                            <div class="di-arrow">↓</div>
+                            <div class="di-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h6>依存関係解決</h6>
+                                    <p>DIコンテナが自動的にインスタンス作成</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5><i class="bi bi-code-slash"></i> 実際の使用例</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// ECommerce.API/Controllers/ProductsController.cs
+[ApiController]
+[Route("api/[controller]")]
+public class ProductsController : ControllerBase
+{
+    private readonly IProductService _productService;
+    private readonly ILogger&lt;ProductsController&gt; _logger;
+    
+    // コンストラクタ注入
+    public ProductsController(
+        IProductService productService,
+        ILogger&lt;ProductsController&gt; logger)
+    {
+        _productService = productService;
+        _logger = logger;
+    }
+    
+    [HttpGet]
+    public async Task&lt;IActionResult&gt; GetProducts()
+    {
+        _logger.LogInformation("Getting all products");
+        
+        // productServiceは自動的にDIコンテナから注入される
+        // 内部的にはInfrastructureプロジェクトのRepositoryを使用
+        var products = await _productService.GetAllProductsAsync();
+        
+        return Ok(products);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- デプロイメント時の詳細な処理フロー -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h2><i class="bi bi-gear-wide"></i> デプロイメント時の詳細な処理フロー</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <h4><i class="bi bi-arrow-down-circle"></i> ステップ別解説</h4>
+                        <div class="deploy-flow">
+                            <div class="deploy-step">
+                                <div class="step-header">
+                                    <span class="step-number">1</span>
+                                    <h5>ソースコードのコンパイル</h5>
+                                </div>
+                                <div class="step-content">
+                                    <p><strong>処理内容：</strong></p>
+                                    <ul>
+                                        <li>C#ソースコードをIL（Intermediate Language）に変換</li>
+                                        <li>各プロジェクトが個別のDLLファイルとして出力</li>
+                                        <li>依存関係の解決とアセンブリの生成</li>
+                                    </ul>
+                                    <div class="code-block">
+                                        <pre><code class="language-bash"># コンパイル処理
+dotnet build
+# → bin/Debug/net8.0/ECommerce.API.dll
+# → bin/Debug/net8.0/ECommerce.Core.dll
+# → bin/Debug/net8.0/ECommerce.Infrastructure.dll</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="deploy-step">
+                                <div class="step-header">
+                                    <span class="step-number">2</span>
+                                    <h5>依存関係の収集</h5>
+                                </div>
+                                <div class="step-content">
+                                    <p><strong>処理内容：</strong></p>
+                                    <ul>
+                                        <li>プロジェクト参照の解決</li>
+                                        <li>NuGetパッケージの依存関係解決</li>
+                                        <li>フレームワーク依存関係の特定</li>
+                                    </ul>
+                                    <div class="code-block">
+                                        <pre><code class="language-bash"># 依存関係を確認
+dotnet list package --include-transitive
+# → Microsoft.AspNetCore.App 8.0.0
+# → Microsoft.EntityFrameworkCore 8.0.0
+# → その他の依存パッケージ</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="deploy-step">
+                                <div class="step-header">
+                                    <span class="step-number">3</span>
+                                    <h5>発行（Publishing）</h5>
+                                </div>
+                                <div class="step-content">
+                                    <p><strong>処理内容：</strong></p>
+                                    <ul>
+                                        <li>すべての依存DLLを出力フォルダに集約</li>
+                                        <li>設定ファイルの環境別変換</li>
+                                        <li>静的ファイルの配置</li>
+                                    </ul>
+                                    <div class="code-block">
+                                        <pre><code class="language-bash"># 発行処理
+dotnet publish -c Release -o ./publish
+# → publish/フォルダにすべての必要ファイルが配置される</code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="deploy-step">
+                                <div class="step-header">
+                                    <span class="step-number">4</span>
+                                    <h5>デプロイメント</h5>
+                                </div>
+                                <div class="step-content">
+                                    <p><strong>処理内容：</strong></p>
+                                    <ul>
+                                        <li>発行されたファイルのサーバーへの配置</li>
+                                        <li>環境変数の設定</li>
+                                        <li>アプリケーションの起動・再起動</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4><i class="bi bi-folder-check"></i> 出力ファイル構造</h4>
+                        <div class="file-tree">
+                            <div class="tree-item folder">
+                                <i class="bi bi-folder"></i> publish/
+                                <div class="tree-children">
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-binary"></i> ECommerce.API.dll
+                                    </div>
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-binary"></i> ECommerce.Core.dll
+                                    </div>
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-binary"></i> ECommerce.Infrastructure.dll
+                                    </div>
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-binary"></i> Microsoft.AspNetCore.dll
+                                    </div>
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-binary"></i> Microsoft.EntityFrameworkCore.dll
+                                    </div>
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-code"></i> appsettings.json
+                                    </div>
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-code"></i> appsettings.Production.json
+                                    </div>
+                                    <div class="tree-item file">
+                                        <i class="bi bi-file-earmark-code"></i> web.config
+                                    </div>
+                                    <div class="tree-item folder">
+                                        <i class="bi bi-folder"></i> wwwroot/
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5><i class="bi bi-info-circle"></i> 重要なポイント</h5>
+                        <div class="alert alert-warning">
+                            <ul class="mb-0">
+                                <li><strong>DLLはコピーされる</strong>: 参照先のDLLは実行時に必要なため、すべて出力フォルダにコピーされます</li>
+                                <li><strong>単一の実行単位</strong>: 複数のプロジェクトが一つのアプリケーションとして動作</li>
+                                <li><strong>依存関係の自動解決</strong>: .NETランタイムが自動的にDLLを読み込み</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Dockerコンテナ化 -->
 <div class="row mb-5">
     <div class="col-12">
@@ -382,6 +797,229 @@ docker-compose logs -f ecommerce-api
 
 # スケーリング
 docker-compose up -d --scale ecommerce-api=3</code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- デプロイメント設定とベストプラクティス -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h2><i class="bi bi-shield-exclamation"></i> デプロイメント設定とベストプラクティス</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-sliders"></i> 環境別設定管理</h4>
+                        <div class="code-block">
+                            <pre><code class="language-json">// appsettings.json（基本設定）
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=ECommerce;Integrated Security=true;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information"
+    }
+  },
+  "JwtSettings": {
+    "SecretKey": "#{JWT_SECRET}#"
+  }
+}
+
+// appsettings.Production.json（本番環境）
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "#{PRODUCTION_CONNECTION_STRING}#"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Warning",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-key"></i> シークレット管理</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// Program.cs - 環境変数からの設定読み込み
+var builder = WebApplication.CreateBuilder(args);
+
+// 環境変数の追加
+builder.Configuration.AddEnvironmentVariables();
+
+// Azure Key Vault（本番環境）
+if (builder.Environment.IsProduction())
+{
+    builder.Configuration.AddAzureKeyVault(
+        new Uri("https://myvault.vault.azure.net/"),
+        new DefaultAzureCredential());
+}
+
+// 設定の使用
+var connectionString = builder.Configuration
+    .GetConnectionString("DefaultConnection");
+var jwtSecret = builder.Configuration["JwtSettings:SecretKey"];</code></pre>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-check-circle"></i> デプロイメント・チェックリスト</h4>
+                        <div class="checklist">
+                            <div class="checklist-section">
+                                <h6><i class="bi bi-code-square"></i> コード品質</h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check1">
+                                    <label class="form-check-label" for="check1">
+                                        すべてのテストが通過
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check2">
+                                    <label class="form-check-label" for="check2">
+                                        コードレビューが完了
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check3">
+                                    <label class="form-check-label" for="check3">
+                                        セキュリティスキャンが完了
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="checklist-section">
+                                <h6><i class="bi bi-database"></i> データベース</h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check4">
+                                    <label class="form-check-label" for="check4">
+                                        マイグレーションスクリプトが準備済み
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check5">
+                                    <label class="form-check-label" for="check5">
+                                        バックアップが取得済み
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="checklist-section">
+                                <h6><i class="bi bi-gear"></i> 設定</h6>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check6">
+                                    <label class="form-check-label" for="check6">
+                                        環境変数が設定済み
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="check7">
+                                    <label class="form-check-label" for="check7">
+                                        証明書が更新済み
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5><i class="bi bi-shield-check"></i> セキュリティ考慮事項</h5>
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                <li><strong>接続文字列の暗号化</strong></li>
+                                <li><strong>APIキーの環境変数化</strong></li>
+                                <li><strong>HTTPS証明書の設定</strong></li>
+                                <li><strong>認証・認可の確認</strong></li>
+                                <li><strong>セキュリティヘッダーの設定</strong></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- トラブルシューティング -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-secondary">
+            <div class="card-header bg-secondary text-white">
+                <h2><i class="bi bi-tools"></i> デプロイメント・トラブルシューティング</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-exclamation-triangle"></i> よくある問題</h4>
+                        <div class="troubleshooting-item">
+                            <h6><i class="bi bi-x-circle text-danger"></i> 依存関係の問題</h6>
+                            <p><strong>症状：</strong> DLL読み込みエラー、型が見つからない</p>
+                            <p><strong>原因：</strong> 必要なDLLが出力フォルダに含まれていない</p>
+                            <div class="code-block">
+                                <pre><code class="language-bash"># 解決方法
+dotnet clean
+dotnet restore
+dotnet build --no-restore
+dotnet publish -c Release</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="troubleshooting-item">
+                            <h6><i class="bi bi-x-circle text-danger"></i> 設定ファイルの問題</h6>
+                            <p><strong>症状：</strong> 接続文字列が見つからない、設定値が間違っている</p>
+                            <p><strong>原因：</strong> 環境別設定ファイルが正しく読み込まれていない</p>
+                            <div class="code-block">
+                                <pre><code class="language-bash"># 環境変数の確認
+echo $ASPNETCORE_ENVIRONMENT
+# または
+set ASPNETCORE_ENVIRONMENT=Production</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h4><i class="bi bi-search"></i> 診断ツール</h4>
+                        <div class="code-block">
+                            <pre><code class="language-bash"># アプリケーションの情報確認
+dotnet --info
+
+# 依存関係の確認
+dotnet list package --outdated
+
+# 発行されたファイルの確認
+dotnet publish --verbosity detailed
+
+# 実行時のログ確認
+dotnet run --verbosity detailed</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-activity"></i> ログとモニタリング</h5>
+                        <div class="code-block">
+                            <pre><code class="language-csharp">// 詳細なログ設定
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// Application Insights（本番環境）
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddApplicationInsightsTelemetry();
+}</code></pre>
+                        </div>
+                        
+                        <h5><i class="bi bi-arrow-clockwise"></i> ロールバック手順</h5>
+                        <div class="alert alert-warning">
+                            <p><strong>緊急時のロールバック：</strong></p>
+                            <ol>
+                                <li>前バージョンのバックアップを確認</li>
+                                <li>データベースの状態を確認</li>
+                                <li>アプリケーションの停止</li>
+                                <li>前バージョンのファイルで置き換え</li>
+                                <li>アプリケーションの再起動</li>
+                                <li>動作確認</li>
+                            </ol>
                         </div>
                     </div>
                 </div>
@@ -848,6 +1486,278 @@ public class ProductService
     .stage-arrow {
         transform: rotate(90deg);
         margin: 10px 0;
+    }
+}
+
+/* 新しく追加したセクション用のスタイル */
+.dependency-diagram {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.dependency-layer {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.layer-box {
+    padding: 15px 20px;
+    border-radius: 8px;
+    text-align: center;
+    min-width: 200px;
+    border: 2px solid #dee2e6;
+}
+
+.layer-box.api {
+    background: #e3f2fd;
+    border-color: #2196f3;
+}
+
+.layer-box.infrastructure {
+    background: #f3e5f5;
+    border-color: #9c27b0;
+}
+
+.layer-box.core {
+    background: #e8f5e8;
+    border-color: #4caf50;
+}
+
+.layer-box h6 {
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+}
+
+.layer-box small {
+    color: #666;
+    font-size: 0.8em;
+}
+
+.dependency-arrow {
+    font-size: 1.5em;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+.di-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.di-step {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.step-number {
+    width: 30px;
+    height: 30px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.step-content {
+    flex: 1;
+    padding: 10px 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #007bff;
+}
+
+.step-content h6 {
+    margin: 0 0 5px 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.step-content p {
+    margin: 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+.di-arrow {
+    font-size: 1.5em;
+    color: #6c757d;
+    text-align: center;
+    margin: 5px 0;
+}
+
+.deploy-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.deploy-step {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.step-header {
+    background: #f8f9fa;
+    padding: 15px;
+    border-bottom: 1px solid #dee2e6;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.step-header .step-number {
+    width: 40px;
+    height: 40px;
+    background: #007bff;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.step-header h5 {
+    margin: 0;
+    color: #333;
+    font-weight: 600;
+}
+
+.step-content {
+    padding: 15px;
+}
+
+.step-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.step-content li {
+    margin: 5px 0;
+    color: #666;
+}
+
+.file-tree {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.tree-item {
+    margin: 5px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tree-item.folder {
+    font-weight: 600;
+    color: #495057;
+}
+
+.tree-item.file {
+    color: #6c757d;
+}
+
+.tree-children {
+    margin-left: 20px;
+}
+
+.tree-item i {
+    width: 16px;
+    text-align: center;
+}
+
+.checklist {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.checklist-section {
+    margin-bottom: 20px;
+}
+
+.checklist-section h6 {
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 600;
+}
+
+.form-check {
+    margin-bottom: 8px;
+}
+
+.form-check-label {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.troubleshooting-item {
+    margin-bottom: 25px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #dc3545;
+}
+
+.troubleshooting-item h6 {
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 600;
+}
+
+.troubleshooting-item p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 0.9em;
+}
+
+@media (max-width: 768px) {
+    .dependency-diagram {
+        padding: 15px;
+    }
+    
+    .layer-box {
+        min-width: 150px;
+        padding: 10px 15px;
+    }
+    
+    .di-step {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-content {
+        width: 100%;
+    }
+    
+    .step-header {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .tree-children {
+        margin-left: 10px;
     }
 }
 </style>
