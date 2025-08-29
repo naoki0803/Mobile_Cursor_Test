@@ -898,6 +898,441 @@ dotnet ef database update</code></pre>
     </div>
 </div>
 
+<!-- 実践的なハンズオン：ECサイトのデータモデル -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h3><i class="bi bi-code-square"></i> 実践的なハンズオン：ECサイトのデータモデル構築</h3>
+            </div>
+            <div class="card-body">
+                <h5 class="mb-3">Step-by-Step: 完全なECサイトのデータ層を実装</h5>
+                
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 1: プロジェクトのセットアップ</h6>
+                    <div class="code-block">
+                        <pre><code class="language-bash"># Web APIプロジェクトの作成
+dotnet new webapi -n ECommerceAPI
+cd ECommerceAPI
+
+# 必要なパッケージの追加
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet add package Microsoft.EntityFrameworkCore.Tools</code></pre>
+                    </div>
+                </div>
+
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 2: エンティティクラスの作成</h6>
+                    <p>Models/Entities フォルダに以下のクラスを作成します：</p>
+                    
+                    <h6 class="mt-3">User.cs - ユーザーエンティティ</h6>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+
+namespace ECommerceAPI.Models.Entities
+{
+    public class User
+    {
+        public int Id { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string UserName { get; set; } = string.Empty;
+        
+        [Required]
+        [EmailAddress]
+        [StringLength(100)]
+        public string Email { get; set; } = string.Empty;
+        
+        [Required]
+        public string PasswordHash { get; set; } = string.Empty;
+        
+        [StringLength(50)]
+        public string? FirstName { get; set; }
+        
+        [StringLength(50)]
+        public string? LastName { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        public DateTime? LastLoginAt { get; set; }
+        
+        // ナビゲーションプロパティ
+        public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+        public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+        public virtual ICollection<Address> Addresses { get; set; } = new List<Address>();
+    }
+}</code></pre>
+                    </div>
+                    
+                    <h6 class="mt-3">Product.cs - 商品エンティティ</h6>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ECommerceAPI.Models.Entities
+{
+    public class Product
+    {
+        public int Id { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; } = string.Empty;
+        
+        [StringLength(500)]
+        public string? Description { get; set; }
+        
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal Price { get; set; }
+        
+        [Required]
+        public int Stock { get; set; }
+        
+        [StringLength(20)]
+        public string? SKU { get; set; }
+        
+        [StringLength(500)]
+        public string? ImageUrl { get; set; }
+        
+        public bool IsActive { get; set; } = true;
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+        
+        // ナビゲーションプロパティ
+        public int CategoryId { get; set; }
+        public virtual Category Category { get; set; } = null!;
+        public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+        public virtual ICollection<CartItem> CartItems { get; set; } = new List<CartItem>();
+    }
+}</code></pre>
+                    </div>
+                    
+                    <h6 class="mt-3">Order.cs - 注文エンティティ</h6>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ECommerceAPI.Models.Entities
+{
+    public class Order
+    {
+        public int Id { get; set; }
+        
+        [Required]
+        [StringLength(20)]
+        public string OrderNumber { get; set; } = string.Empty;
+        
+        public int UserId { get; set; }
+        public virtual User User { get; set; } = null!;
+        
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TotalAmount { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string Status { get; set; } = "Pending";
+        
+        public DateTime OrderDate { get; set; }
+        public DateTime? ShippedDate { get; set; }
+        public DateTime? DeliveredDate { get; set; }
+        
+        // 配送先情報
+        public int ShippingAddressId { get; set; }
+        public virtual Address ShippingAddress { get; set; } = null!;
+        
+        // ナビゲーションプロパティ
+        public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 3: DbContextの実装</h6>
+                    <p>Data/ECommerceDbContext.cs を作成します：</p>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using ECommerceAPI.Models.Entities;
+
+namespace ECommerceAPI.Data
+{
+    public class ECommerceDbContext : DbContext
+    {
+        public ECommerceDbContext(DbContextOptions<ECommerceDbContext> options)
+            : base(options)
+        {
+        }
+        
+        // DbSets
+        public DbSet<User> Users { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<CartItem> CartItems { get; set; }
+        public DbSet<Address> Addresses { get; set; }
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            
+            // User設定
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.UserName).IsUnique();
+                
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+            });
+            
+            // Product設定
+            modelBuilder.Entity<Product>(entity =>
+            {
+                entity.HasIndex(e => e.SKU).IsUnique();
+                
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETUTCDATE()");
+                    
+                entity.HasOne(p => p.Category)
+                    .WithMany(c => c.Products)
+                    .HasForeignKey(p => p.CategoryId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            
+            // Order設定
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.HasIndex(e => e.OrderNumber).IsUnique();
+                
+                entity.Property(e => e.OrderDate)
+                    .HasDefaultValueSql("GETUTCDATE()");
+                    
+                entity.HasOne(o => o.User)
+                    .WithMany(u => u.Orders)
+                    .HasForeignKey(o => o.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+            
+            // OrderItem設定
+            modelBuilder.Entity<OrderItem>(entity =>
+            {
+                entity.HasKey(e => new { e.OrderId, e.ProductId });
+                
+                entity.HasOne(oi => oi.Order)
+                    .WithMany(o => o.OrderItems)
+                    .HasForeignKey(oi => oi.OrderId);
+                    
+                entity.HasOne(oi => oi.Product)
+                    .WithMany(p => p.OrderItems)
+                    .HasForeignKey(oi => oi.ProductId);
+            });
+            
+            // CartItem設定
+            modelBuilder.Entity<CartItem>(entity =>
+            {
+                entity.HasKey(e => new { e.UserId, e.ProductId });
+                
+                entity.HasOne(ci => ci.User)
+                    .WithMany(u => u.CartItems)
+                    .HasForeignKey(ci => ci.UserId);
+                    
+                entity.HasOne(ci => ci.Product)
+                    .WithMany(p => p.CartItems)
+                    .HasForeignKey(ci => ci.ProductId);
+            });
+            
+            // シードデータ
+            SeedData(modelBuilder);
+        }
+        
+        private void SeedData(ModelBuilder modelBuilder)
+        {
+            // カテゴリのシードデータ
+            modelBuilder.Entity<Category>().HasData(
+                new Category { Id = 1, Name = "電子機器", Description = "PC、スマートフォンなど" },
+                new Category { Id = 2, Name = "書籍", Description = "技術書、ビジネス書など" },
+                new Category { Id = 3, Name = "衣料品", Description = "服、靴、アクセサリーなど" }
+            );
+            
+            // 商品のシードデータ
+            modelBuilder.Entity<Product>().HasData(
+                new Product 
+                { 
+                    Id = 1,
+                    Name = "ノートパソコン",
+                    Description = "高性能ビジネスノートPC",
+                    Price = 120000,
+                    Stock = 50,
+                    SKU = "NB-001",
+                    CategoryId = 1,
+                    CreatedAt = DateTime.UtcNow
+                },
+                new Product 
+                { 
+                    Id = 2,
+                    Name = "C#プログラミング入門",
+                    Description = "初心者向けC#学習書",
+                    Price = 3000,
+                    Stock = 100,
+                    SKU = "BK-001",
+                    CategoryId = 2,
+                    CreatedAt = DateTime.UtcNow
+                }
+            );
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 4: リポジトリパターンの実装</h6>
+                    <p>Repositories/IProductRepository.cs を作成します：</p>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using ECommerceAPI.Models.Entities;
+
+namespace ECommerceAPI.Repositories
+{
+    public interface IProductRepository
+    {
+        Task<IEnumerable<Product>> GetAllAsync();
+        Task<Product?> GetByIdAsync(int id);
+        Task<IEnumerable<Product>> GetByCategoryAsync(int categoryId);
+        Task<IEnumerable<Product>> SearchAsync(string searchTerm);
+        Task<Product> AddAsync(Product product);
+        Task UpdateAsync(Product product);
+        Task DeleteAsync(int id);
+        Task<bool> UpdateStockAsync(int productId, int quantity);
+    }
+}</code></pre>
+                    </div>
+                    
+                    <p class="mt-3">Repositories/ProductRepository.cs の実装：</p>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using Microsoft.EntityFrameworkCore;
+using ECommerceAPI.Data;
+using ECommerceAPI.Models.Entities;
+
+namespace ECommerceAPI.Repositories
+{
+    public class ProductRepository : IProductRepository
+    {
+        private readonly ECommerceDbContext _context;
+        
+        public ProductRepository(ECommerceDbContext context)
+        {
+            _context = context;
+        }
+        
+        public async Task<IEnumerable<Product>> GetAllAsync()
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive)
+                .ToListAsync();
+        }
+        
+        public async Task<Product?> GetByIdAsync(int id)
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .FirstOrDefaultAsync(p => p.Id == id);
+        }
+        
+        public async Task<IEnumerable<Product>> GetByCategoryAsync(int categoryId)
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.CategoryId == categoryId && p.IsActive)
+                .ToListAsync();
+        }
+        
+        public async Task<IEnumerable<Product>> SearchAsync(string searchTerm)
+        {
+            return await _context.Products
+                .Include(p => p.Category)
+                .Where(p => p.IsActive && 
+                    (p.Name.Contains(searchTerm) || 
+                     p.Description!.Contains(searchTerm)))
+                .ToListAsync();
+        }
+        
+        public async Task<Product> AddAsync(Product product)
+        {
+            product.CreatedAt = DateTime.UtcNow;
+            _context.Products.Add(product);
+            await _context.SaveChangesAsync();
+            return product;
+        }
+        
+        public async Task UpdateAsync(Product product)
+        {
+            product.UpdatedAt = DateTime.UtcNow;
+            _context.Entry(product).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
+        
+        public async Task DeleteAsync(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product != null)
+            {
+                product.IsActive = false; // ソフトデリート
+                await _context.SaveChangesAsync();
+            }
+        }
+        
+        public async Task<bool> UpdateStockAsync(int productId, int quantity)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product == null || product.Stock < quantity)
+            {
+                return false;
+            }
+            
+            product.Stock -= quantity;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 5: マイグレーションの実行</h6>
+                    <div class="code-block">
+                        <pre><code class="language-bash"># 初回マイグレーションの作成
+dotnet ef migrations add InitialCreate
+
+# データベースの更新
+dotnet ef database update
+
+# マイグレーションの確認
+dotnet ef migrations list</code></pre>
+                    </div>
+                </div>
+
+                <div class="alert alert-success mt-4">
+                    <h5><i class="bi bi-check-circle-fill"></i> 学習成果</h5>
+                    <p>このハンズオンを通じて、以下のスキルを実践的に学べます：</p>
+                    <ul class="mb-0">
+                        <li>複雑なエンティティ関係の設計と実装</li>
+                        <li>Fluent APIを使用した詳細な設定</li>
+                        <li>リポジトリパターンの実装</li>
+                        <li>Code Firstアプローチでのデータベース構築</li>
+                        <li>実際のECサイトで使用されるデータモデルの理解</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- アクション -->
 <div class="text-center">
     <div class="d-grid gap-2 d-md-block">

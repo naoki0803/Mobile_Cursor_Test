@@ -1,17 +1,34 @@
 <div class="section-header">
     <h1><i class="bi bi-microsoft"></i> .NET基礎</h1>
     <p>.NETプラットフォームの基本概念、アーキテクチャ、開発環境について詳しく学習します</p>
+    <div class="mt-3">
+        <span class="badge bg-secondary"><i class="bi bi-clock"></i> 所要時間: 5-7時間</span>
+        <span class="badge bg-info"><i class="bi bi-bar-chart"></i> 難易度: 初級</span>
+        <span class="badge bg-success"><i class="bi bi-trophy"></i> 前提知識: プログラミング基礎</span>
+    </div>
 </div>
 
 <div class="learning-objectives">
     <h3><i class="bi bi-target"></i> 学習目標</h3>
-    <ul>
-        <li>.NETプラットフォームの歴史と進化を理解する</li>
-        <li>.NET Framework、.NET Core、.NET 5+の違いを説明できる</li>
-        <li>CLR（Common Language Runtime）の役割を理解する</li>
-        <li>開発環境をセットアップできる</li>
-        <li>基本的な.NETアプリケーションを作成できる</li>
-    </ul>
+    <div class="row">
+        <div class="col-md-8">
+            <ul>
+                <li>.NETプラットフォームの歴史と進化を理解する</li>
+                <li>.NET Framework、.NET Core、.NET 5+の違いを説明できる</li>
+                <li>CLR（Common Language Runtime）の役割を理解する</li>
+                <li>開発環境をセットアップできる</li>
+                <li>基本的な.NETアプリケーションを作成できる</li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="bi bi-check-circle"></i> 期待される成果</h6>
+                    <p class="card-text small">このセクションを完了すると、.NETエコシステムの全体像を理解し、簡単なコンソールアプリケーションやWebAPIを作成できるようになります。</p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- .NETの概要 -->
@@ -445,6 +462,362 @@ namespace MyFirstWebApi.Controllers
                         
                         <div class="alert alert-success">
                             <small><i class="bi bi-info-circle"></i> ブラウザで <code>https://localhost:5001/api/hello</code> にアクセスして結果を確認できます。</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実践的なハンズオン -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h3><i class="bi bi-code-square"></i> 実践的なハンズオン：ECサイトの基礎を作ろう</h3>
+            </div>
+            <div class="card-body">
+                <h5 class="mb-3">Step-by-Step: 商品管理コンソールアプリケーション</h5>
+                
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 1: プロジェクトの作成と基本構造</h6>
+                    <div class="code-block">
+                        <pre><code class="language-bash"># プロジェクトの作成
+dotnet new console -n ProductManager
+cd ProductManager
+
+# ソリューションファイルの作成
+dotnet new sln -n ProductManager
+dotnet sln add ProductManager.csproj</code></pre>
+                    </div>
+                </div>
+
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 2: 商品モデルの作成</h6>
+                    <p>Models/Product.cs を作成します：</p>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">namespace ProductManager.Models
+{
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public decimal Price { get; set; }
+        public int Stock { get; set; }
+        public DateTime CreatedAt { get; set; }
+        
+        public Product()
+        {
+            CreatedAt = DateTime.Now;
+        }
+        
+        public override string ToString()
+        {
+            return $"[{Id}] {Name} - ¥{Price:N0} (在庫: {Stock})";
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 3: 商品管理サービスの実装</h6>
+                    <p>Services/ProductService.cs を作成します：</p>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using ProductManager.Models;
+using System.Text.Json;
+
+namespace ProductManager.Services
+{
+    public class ProductService
+    {
+        private readonly string _dataFile = "products.json";
+        private List<Product> _products = new();
+        private int _nextId = 1;
+        
+        public ProductService()
+        {
+            LoadProducts();
+        }
+        
+        // 商品を追加
+        public void AddProduct(Product product)
+        {
+            product.Id = _nextId++;
+            _products.Add(product);
+            SaveProducts();
+            Console.WriteLine($"✅ 商品 '{product.Name}' を追加しました。");
+        }
+        
+        // 全商品を取得
+        public List<Product> GetAllProducts()
+        {
+            return _products;
+        }
+        
+        // 商品を検索
+        public Product? FindProduct(int id)
+        {
+            return _products.FirstOrDefault(p => p.Id == id);
+        }
+        
+        // 在庫を更新
+        public bool UpdateStock(int id, int newStock)
+        {
+            var product = FindProduct(id);
+            if (product != null)
+            {
+                product.Stock = newStock;
+                SaveProducts();
+                return true;
+            }
+            return false;
+        }
+        
+        // データをファイルに保存
+        private void SaveProducts()
+        {
+            var options = new JsonSerializerOptions { WriteIndented = true };
+            var json = JsonSerializer.Serialize(_products, options);
+            File.WriteAllText(_dataFile, json);
+        }
+        
+        // データをファイルから読み込み
+        private void LoadProducts()
+        {
+            if (File.Exists(_dataFile))
+            {
+                var json = File.ReadAllText(_dataFile);
+                _products = JsonSerializer.Deserialize<List<Product>>(json) ?? new();
+                _nextId = _products.Any() ? _products.Max(p => p.Id) + 1 : 1;
+            }
+        }
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="step-section mb-4">
+                    <h6 class="text-primary">Step 4: メインプログラムの実装</h6>
+                    <p>Program.cs を更新します：</p>
+                    <div class="code-block">
+                        <pre><code class="language-csharp">using ProductManager.Models;
+using ProductManager.Services;
+
+var service = new ProductService();
+var running = true;
+
+Console.WriteLine("🛍️  商品管理システムへようこそ！");
+Console.WriteLine("=====================================");
+
+while (running)
+{
+    Console.WriteLine("\n何をしますか？");
+    Console.WriteLine("1. 商品を追加");
+    Console.WriteLine("2. 商品一覧を表示");
+    Console.WriteLine("3. 在庫を更新");
+    Console.WriteLine("4. 終了");
+    Console.Write("\n選択してください (1-4): ");
+    
+    var choice = Console.ReadLine();
+    
+    switch (choice)
+    {
+        case "1":
+            AddNewProduct();
+            break;
+        case "2":
+            ShowAllProducts();
+            break;
+        case "3":
+            UpdateProductStock();
+            break;
+        case "4":
+            running = false;
+            Console.WriteLine("\n👋 ありがとうございました！");
+            break;
+        default:
+            Console.WriteLine("❌ 無効な選択です。もう一度お試しください。");
+            break;
+    }
+}
+
+void AddNewProduct()
+{
+    Console.WriteLine("\n--- 新商品の追加 ---");
+    
+    Console.Write("商品名: ");
+    var name = Console.ReadLine() ?? "";
+    
+    Console.Write("説明: ");
+    var description = Console.ReadLine() ?? "";
+    
+    Console.Write("価格: ¥");
+    if (!decimal.TryParse(Console.ReadLine(), out var price))
+    {
+        Console.WriteLine("❌ 無効な価格です。");
+        return;
+    }
+    
+    Console.Write("在庫数: ");
+    if (!int.TryParse(Console.ReadLine(), out var stock))
+    {
+        Console.WriteLine("❌ 無効な在庫数です。");
+        return;
+    }
+    
+    var product = new Product
+    {
+        Name = name,
+        Description = description,
+        Price = price,
+        Stock = stock
+    };
+    
+    service.AddProduct(product);
+}
+
+void ShowAllProducts()
+{
+    Console.WriteLine("\n--- 商品一覧 ---");
+    var products = service.GetAllProducts();
+    
+    if (!products.Any())
+    {
+        Console.WriteLine("商品がありません。");
+        return;
+    }
+    
+    foreach (var product in products)
+    {
+        Console.WriteLine(product);
+        Console.WriteLine($"  説明: {product.Description}");
+        Console.WriteLine($"  登録日: {product.CreatedAt:yyyy/MM/dd HH:mm}");
+        Console.WriteLine();
+    }
+}
+
+void UpdateProductStock()
+{
+    Console.WriteLine("\n--- 在庫の更新 ---");
+    
+    Console.Write("商品ID: ");
+    if (!int.TryParse(Console.ReadLine(), out var id))
+    {
+        Console.WriteLine("❌ 無効なIDです。");
+        return;
+    }
+    
+    var product = service.FindProduct(id);
+    if (product == null)
+    {
+        Console.WriteLine($"❌ ID {id} の商品が見つかりません。");
+        return;
+    }
+    
+    Console.WriteLine($"現在の商品: {product}");
+    Console.Write("新しい在庫数: ");
+    
+    if (!int.TryParse(Console.ReadLine(), out var newStock))
+    {
+        Console.WriteLine("❌ 無効な在庫数です。");
+        return;
+    }
+    
+    if (service.UpdateStock(id, newStock))
+    {
+        Console.WriteLine("✅ 在庫を更新しました。");
+    }
+}</code></pre>
+                    </div>
+                </div>
+
+                <div class="alert alert-success mt-4">
+                    <h5><i class="bi bi-check-circle-fill"></i> 学習成果</h5>
+                    <p>このハンズオンを通じて、以下のスキルを実践的に学べます：</p>
+                    <ul class="mb-0">
+                        <li>.NETプロジェクトの作成と構造化</li>
+                        <li>C#の基本的なクラスとプロパティの作成</li>
+                        <li>ファイルI/OとJSON処理</li>
+                        <li>基本的なCRUD操作の実装</li>
+                        <li>コンソールアプリケーションのUI設計</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 実務でのベストプラクティス -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h3><i class="bi bi-star-fill"></i> 実務でのベストプラクティス</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-folder-check"></i> プロジェクト構成</h5>
+                        <ul>
+                            <li><strong>レイヤード アーキテクチャ</strong>
+                                <ul>
+                                    <li>Presentation層（UI/Controllers）</li>
+                                    <li>Business層（Services/Logic）</li>
+                                    <li>Data層（Repositories/DbContext）</li>
+                                </ul>
+                            </li>
+                            <li><strong>命名規則</strong>
+                                <ul>
+                                    <li>プロジェクト名: CompanyName.ProductName.Layer</li>
+                                    <li>例: MyCompany.ECommerce.Web</li>
+                                </ul>
+                            </li>
+                            <li><strong>フォルダ構造</strong>
+                                <pre class="small"><code>MyApp/
+├── src/
+│   ├── MyApp.Web/
+│   ├── MyApp.Core/
+│   └── MyApp.Infrastructure/
+├── tests/
+│   ├── MyApp.UnitTests/
+│   └── MyApp.IntegrationTests/
+└── MyApp.sln</code></pre>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h5><i class="bi bi-shield-check"></i> セキュリティとパフォーマンス</h5>
+                        <ul>
+                            <li><strong>設定管理</strong>
+                                <ul>
+                                    <li>機密情報は User Secrets や環境変数で管理</li>
+                                    <li>appsettings.{Environment}.json の活用</li>
+                                </ul>
+                            </li>
+                            <li><strong>依存関係管理</strong>
+                                <ul>
+                                    <li>定期的なパッケージ更新</li>
+                                    <li>セキュリティ脆弱性のチェック</li>
+                                </ul>
+                            </li>
+                            <li><strong>ロギング</strong>
+                                <ul>
+                                    <li>適切なログレベルの使用</li>
+                                    <li>構造化ロギング（Serilog等）</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        
+                        <div class="alert alert-warning mt-3">
+                            <h6><i class="bi bi-exclamation-triangle"></i> 注意点</h6>
+                            <ul class="mb-0 small">
+                                <li>本番環境では Debug ビルドを使用しない</li>
+                                <li>接続文字列にパスワードを直接記載しない</li>
+                                <li>適切な例外処理を実装する</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
